@@ -57,13 +57,24 @@ capital all@(x:xs) = "The first letter of " ++ all ++ " is " ++ [x]
 
 bmiTell :: (RealFloat a) => a -> a -> String
 bmiTell weight height
-  | bmi <= 18.5 = "You're underweight"
-  | bmi <= 25.5 = "You're normal"
-  | bmi <= 30.0 = "You're fat"
+  | bmi <= skinny  = "You're underweight"
+  | bmi <= normal = "You're normal"
+  | bmi <= fat  = "You're fat"
   | otherwise = "you are a whale"
   where bmi = weight / height ^ 2
+        (skinny , normal , fat) = ( 18.5, 25.0, 30 )
 
+initials :: String -> String -> String
+initials firstname lastname = [f] ++ ". " ++ [l] ++ "."
+    where (f:_) = firstname
+          (l:_) = lastname
 
+calcBmis :: (RealFloat a) => [(a,a)]-> [a]
+calcBmis xs = [ bmi w h | (w,h) <- xs ]
+    where bmi weight height = weight / height ^2
 
-
-
+cylinder :: (RealFloat a ) => a -> a -> a
+cylinder r h = 
+    let sideArea = 2 * pi *r * h
+        topArea = pi * r ^2
+    in sideArea + 2 * topArea
