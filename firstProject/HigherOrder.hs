@@ -16,3 +16,29 @@ multThree ::(Num a) => a -> a ->a ->a
 --multThree x y z = (make_fmultTwo x) y z
 multThree x = (make_fmultTwo x) 
 
+zipWith1 :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith1 _ []_=[]
+zipWith1 _ _[]=[]
+zipWith1 f (x:xs) (y:ys) = f x y : zipWith1 f xs ys
+
+flip1 :: (a->b->c)->(b->a->c)
+flip1 f x y = f y x
+--flip1 f = g
+--    where g x y = f y x
+--
+
+quicksort :: (Ord a) => [a] -> [a]
+quicksort [] = []
+quicksort (x:xs) = smallerSorted ++ [x] ++ biggerSorted
+    where   smallerSorted= quicksort (filter (<=x) xs)
+            biggerSorted = quicksort (filter (>x) xs)
+
+largestDivisible ::(Integral a) => a
+largestDivisible = head (filter p [100000,99999..])
+    where p x = x`mod` 3829 == 0
+    
+collatzChain :: (Integral a) => a -> [a]
+collatzChain 1 = [1]
+collatzChain n
+    | even n = n:collatzChain (n `div` 2)
+    | odd n =  n:collatzChain (n*3 + 1)
