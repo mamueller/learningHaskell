@@ -42,3 +42,19 @@ collatzChain 1 = [1]
 collatzChain n
     | even n = n:collatzChain (n `div` 2)
     | odd n =  n:collatzChain (n*3 + 1)
+
+
+numLongChains :: Int
+numLongChains = length (filter (\xs -> length xs > 15) (map collatzChain [1..100]))
+
+sum1 :: (Num a) => [a] -> a
+sum1 xs = foldl (\s x -> s + x ) 0 xs
+
+sum2 :: (Num a) => [a] -> a
+sum2 xs = foldl (+) 0 xs
+
+elem1 :: (Eq a) => a -> [a] -> Bool
+elem1 e l = foldl (\acc x -> if x==e then True else acc) False l
+
+map1 :: (a->b)->[a] -> [b]
+map1 f xs = foldl (\acc x -> acc ++ [f x]) [] xs
