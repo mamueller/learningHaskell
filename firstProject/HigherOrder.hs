@@ -47,6 +47,7 @@ collatzChain n
 numLongChains :: Int
 numLongChains = length (filter (\xs -> length xs > 15) (map collatzChain [1..100]))
 
+--foldl and foldr---------------------------------------------------------------------------
 sum1 :: (Num a) => [a] -> a
 sum1 xs = foldl (\s x -> s + x ) 0 xs
 
@@ -58,3 +59,25 @@ elem1 e l = foldl (\acc x -> if x==e then True else acc) False l
 
 map1 :: (a->b)->[a] -> [b]
 map1 f xs = foldl (\acc x -> acc ++ [f x]) [] xs
+
+reverse1 :: [a] -> [a]
+reverse1 =foldl (\ acc x -> x:acc) []
+
+filter1 :: (a->Bool) -> [a] ->[a]
+filter1 f = foldr (\x acc -> if f x then x:acc else acc ) [] 
+
+--foldl1 and foldr1 ---------------------------------------------------------------------------
+maximum1 :: (Ord a) => [a] ->a
+maximum1 = foldr1 (\ x acc -> if x>acc then x else acc)
+
+product1 :: (Num a) => [a]->a
+product1 = foldl1 (\acc x ->acc*x)
+
+head1 :: [a] -> a
+head1 = foldr1 (\x acc -> x) 
+
+last1:: [a] -> a
+last1 = foldl1 (\ _ x  -> x) 
+
+sqrtSum :: Int
+sqrtSum = length (takeWhile (<1000) (scanl1 (+) (map sqrt [1..])))+1
