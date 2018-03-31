@@ -17,3 +17,11 @@ treeElem x (Node a left right)
     | x < a  = treeElem x left
     | x > a  = treeElem x right
     
+instance Functor Tree where
+    fmap f EmptyTree = EmptyTree
+    fmap f (Node x leftsub rightsub) = Node (f x) (fmap f leftsub) (fmap f rightsub)
+    
+nums = [8,6,4,1,7,3,5]
+numsTree = foldr treeInsert EmptyTree nums
+
+
