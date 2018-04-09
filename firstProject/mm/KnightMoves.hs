@@ -49,3 +49,8 @@ canReachIn3 start end = end `elem` in3 start
 canReachIn3Mm :: KnightPos -> KnightPos -> [ReversedRoute]
 canReachIn3Mm start end = filter (\route -> (head route) == end) (paths [[start]] 3)
 
+inMany :: Int -> KnightPos ->[KnightPos]
+inMany x start = return start >>= foldr (<=<) return (replicate x moveKnight)
+
+canReachIn :: Int ->KnightPos -> KnightPos -> Bool
+canReachIn x start end = end `elem` inMany x start
