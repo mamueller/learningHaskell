@@ -49,8 +49,8 @@ type NumberOfPairsPerSide= Int
 type RimIntervals = Int
 --between the rim points of a pair of CROSSED spokes
 --that occupy 2 directly adjacent wholes in the hub
-data Pattern = CrossedPattern NumberOfPairsPerSide RimIntervals 
-                      deriving (Show)
+data Pattern = CrossedPattern { numberOfPairsPerSide::Int ,rimIntervals::Int }
+               deriving (Show)
 --  examples
 spline24 :: Pattern
 spline24=CrossedPattern 6 10
@@ -58,5 +58,99 @@ spline24=CrossedPattern 6 10
 threeCrossed32 :: Pattern
 threeCrossed32 =CrossedPattern 8 10
 
-numberOfHoles:: Pattern -> Int
-numberOfHoles(CrossedPattern np _) = np*4
+numberOfHubHoles:: Pattern -> Int
+numberOfHubHoles(CrossedPattern np _) = np*4
+
+
+data Flange =JBendFlange { flangeHoles::Int, flangeDiameter::Double, distance::Double} 
+            |StraightPullFlange { flangeHoles::Int, flangeDiameter::Double, distance::Double, offSetFromMiddle::Double}
+            deriving (Show)
+
+type LeftFlange = Flange 
+type RightFlange = Flange
+
+data Hub = Hub {leftFlange::Flange, rightFlange::Flange, width::Double}
+         deriving (Show)
+           
+
+aC32Wide= Hub {leftFlange=JBendFlange {flangeHoles=16 ,flangeDiameter=66.0,distance=33.5}
+              ,rightFlange=JBendFlange {flangeHoles=16,flangeDiameter=66.0,distance=49.0}
+              ,width= 130.0}
+
+aC32Narrow= Hub {leftFlange=JBendFlange {flangeHoles=16 ,flangeDiameter=66.0,distance=42.0}
+              ,rightFlange=JBendFlange {flangeHoles=16,flangeDiameter=66.0,distance=49.0}
+              ,width= 130.0}
+
+
+data Rim = Rim { rimHoles:: Int
+                ,outerDiameter::Double  -- equal to the innermost diameter of the tyre, standardized 622mm for every 28"
+                ,depth::Double -- from the outerDiameter to the bottom of the nipple seat (in the rim)  =distance from the spokewhole outer edge to the tyre seat
+                ,rimOffSet::Double --0 for symmetric rims , distance of spoke holes to (z) center of rim                  
+                }                        
+dT411_32=Rim {rimHoles=32,outerDiameter=622,depth=13.0,rimOffSet=2}
+
+erd :: Rim -> Double --the inner diameter of the rim plus the width of the rim material 
+erd r  = (outerDiameter r )-(2*(depth r))
+
+data Wheel = Wheel {hub::Hub, rim::Rim , pattern::Pattern}
+aC32Wide_dT411_32 = Wheel {hub=aC32Wide,rim=dT411_32,pattern=threeCrossed32}
+
+zDists :: Hub -> (Double,Double) --compute the distance of the flanges from the center of the hub
+zDists (Hub leftFlange rightFlange width)  = ( hw-(distance leftFlange) , hw-(distance rightFlange) )
+    where hw=width/2
+
+data Coords =  CylinderCoords{r::Double,phi::Double,z::Double}
+               |CartesianCoords{x::Double,y::Double,z::Double} 
+               deriving(Show)
+
+p1:: Coords
+p1= CartesianCoords 1 1 1 
+pc1= CylinderCoords (sqrt 2) (pi/4) 1 
+
+norm ::Coords ->Double
+norm ( CartesianCoords x y z )  = sqrt ( x^2 + y^2 + z^2 )
+--norm ( CylinderCoords r phi z ) = norm (toCartesian ( CylinderCoords r phi z ))
+norm c = norm (toCartesian c)
+
+toCartesian :: Coords->Coords 
+--toCartesian ( CartesianCoords x y z)  = CartesianCoords x y z
+toCartesian ( CylinderCoords r phi z ) = CartesianCoords x y z
+    where   x=r*cos phi
+            y=r*sin phi
+toCartesian x = x --identety
+                                                
+
+pointDistance :: Coords-> Coords-> Double 
+pointDistance (CartesianCoords x1 y1 z1 ) (CartesianCoords x2 y2 z2 )= norm (CartesianCoords (x2-x1) (y2-y1) (z2-z1) )
+pointDistance p1 p2 = pointDistance (toCartesian p1) (toCartesian p2)
+
+spokeLengths :: Wheel -> (Double,Double)
+spokeLengths (Wheel hub rim pattern)=(leftSpokeLength,rightSpokeLength)
+    where   leftSpokeLength=pointDistance hubPointLeft rimPoint
+            rightSpokeLength=pointDistance hubPointRight rimPoint
+            lf=leftFlange hub
+            rf=rightFlange hub
+            
+            delta_phi_lf=(2*pi) / fromIntegral(flangeHoles lf) 
+            delta_phi_rf=(2*pi) / fromIntegral(flangeHoles rf) 
+
+            (zl,zr)=zDists hub
+            hubPointLeft=CylinderCoords{
+                 r=(flangeDiameter lf)/2
+                ,phi=delta_phi_lf/2
+                ,z=zl-(rimOffSet rim)}
+            
+            hubPointRight=CylinderCoords{
+                 r=(flangeDiameter rf)/2
+                ,phi=delta_phi_rf/2
+                ,z=zr+(rimOffSet rim)
+            }
+            delta_phi_rim=(2*pi) / fromIntegral ( numberOfHubHoles pattern)
+            rimPoint=CylinderCoords{
+                 r=(erd rim)/2
+                ,phi= -(delta_phi_rim*fromIntegral (rimIntervals pattern)/2)
+                ,z=0 
+            }
+
+
+(left,right)=spokeLengths(aC32Wide_dT411_32)
