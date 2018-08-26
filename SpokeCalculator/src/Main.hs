@@ -1,3 +1,7 @@
+module Main where
+import System.IO (readFile)
+import Data.Time (getCurrentTime)
+
 -- for this to work OpenGL and GLUT have to be in firsProject.cabal
 -- and stack build has to be called 
 -- (I did stack install OpenGL before)
@@ -6,14 +10,22 @@
 -- for the graphics I followed https://wiki.haskell.org/OpenGLTutorial1
 import Graphics.Rendering.OpenGL
 import Graphics.UI.GLUT
-myPoints :: [(GLfloat,GLfloat,GLfloat)]
-myPoints = [(sin (2*pi*k/12),cos (2*pi*k/12),0)| k<-[1..12]]
+
 main :: IO ()
 main = do
-  (_progName,args) <-getArgsAndInitialize
-  _window <- createWindow "Hello World"
-  displayCallback $= display
-  mainLoop
+  time <- getCurrentTime
+  putStrLn (greet "Markus" (show time) )
+
+  --let (left,right)=spokeLengths aC32Narrow_dT411_32
+  --putStrLn  ("aC32Narrow_dT411_32: \n left:" ++ (show left)   ++ "\nright:" ++ (show right)  )
+
+  putStrLn ( spokeLengthStr aC32Wide_dT411_32)
+  putStrLn ( spokeLengthStr aC32Narrow_dT411_32)
+--  -- start opengle part
+--  (_progName,args) <-getArgsAndInitialize
+--  _window <- createWindow "Hello World"
+--  displayCallback $= display
+--  mainLoop
 
 display :: DisplayCallback
 display = do
@@ -24,6 +36,9 @@ display = do
   renderPrimitive TriangleFan$
     mapM_ (\(x,y,z) -> vertex $ Vertex3 x y z) myPoints
   flush
+
+myPoints :: [(GLfloat,GLfloat,GLfloat)]
+myPoints = [(sin (2*pi*k/12),cos (2*pi*k/12),0)| k<-[1..12]]
 
 -- rim diameter without horns 622mm (29" or 28" 700C)  
 -- with horns the values differ 632 for Regida DP18 or 630
@@ -92,8 +107,9 @@ dT411_32=Rim {rimHoles=32,outerDiameter=622,depth=13.0,rimOffSet=2}
 erd :: Rim -> Double --the inner diameter of the rim plus the width of the rim material 
 erd r  = (outerDiameter r )-(2*(depth r))
 
-data Wheel = Wheel {hub::Hub, rim::Rim , pattern::Pattern}
-aC32Wide_dT411_32 = Wheel {hub=aC32Wide,rim=dT411_32,pattern=threeCrossed32}
+data Wheel = Wheel {hub::Hub, rim::Rim , pattern::Pattern, name::[Char]}
+aC32Wide_dT411_32 = Wheel {hub=aC32Wide,rim=dT411_32,pattern=threeCrossed32,name="aC32Wide_dT411_32"}
+aC32Narrow_dT411_32 = Wheel {hub=aC32Narrow,rim=dT411_32,pattern=threeCrossed32,name="aC32Narrow_dT411_32" }
 
 zDists :: Hub -> (Double,Double) --compute the distance of the flanges from the center of the hub
 zDists (Hub leftFlange rightFlange width)  = ( hw-(distance leftFlange) , hw-(distance rightFlange) )
@@ -124,8 +140,16 @@ pointDistance :: Coords-> Coords-> Double
 pointDistance (CartesianCoords x1 y1 z1 ) (CartesianCoords x2 y2 z2 )= norm (CartesianCoords (x2-x1) (y2-y1) (z2-z1) )
 pointDistance p1 p2 = pointDistance (toCartesian p1) (toCartesian p2)
 
+spokeLengthStr :: Wheel -> [Char]
+spokeLengthStr wheel  = 
+    let 
+        (left,right)=spokeLengths wheel
+    in "\nWheel:" ++ (name wheel) ++ "\n left:" ++ (show left)   ++ "\nright:" ++ (show right)  
+  
+        
+
 spokeLengths :: Wheel -> (Double,Double)
-spokeLengths (Wheel hub rim pattern)=(leftSpokeLength,rightSpokeLength)
+spokeLengths (Wheel hub rim pattern _ )=(leftSpokeLength,rightSpokeLength)
     where   leftSpokeLength=pointDistance hubPointLeft rimPoint
             rightSpokeLength=pointDistance hubPointRight rimPoint
             lf=leftFlange hub
@@ -153,4 +177,13 @@ spokeLengths (Wheel hub rim pattern)=(leftSpokeLength,rightSpokeLength)
             }
 
 
-(left,right)=spokeLengths(aC32Wide_dT411_32)
+greet:: [Char]->[Char]->[Char]
+greet name timeStr = "Hello " ++ name ++ "! It is now" ++ timeStr 
+
+
+printConfig =do 
+    contents <-readFile "stack.yaml"
+    putStrLn contents
+
+
+
