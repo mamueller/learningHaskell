@@ -1,11 +1,15 @@
-smaller :: Ord a => a -> [a] -> [a]
-smaller p xs = [ x | x <- xs,x<p]
+--sublist length smaller than p
+ss :: Int-> [[a]] -> [[a]]
+ss p lists = [ list | list <- lists,(length list)<p]
 
-bigger :: Ord a => a -> [a] -> [a]
-bigger p xs = [ x | x <- xs,x>p]
+--sublist length bigger than p
+bs:: Int-> [[a]] -> [[a]]
+bs p lists = [ list | list  <- lists,(length list)>p]
 
-quicksort :: Ord a => [a]->[a]
-quicksort []=[]
-quicksort [x]=[x]
-quicksort (p:xs) = quicksort (smaller p xs) ++ p:(quicksort (bigger p xs))
+--quicksort sublists by length
+qs :: [[a]]->[[a]]
+qs []=[]
+qs [[x]]=[[x]]
+qs (plist:lists) = qs (ss p lists) ++ plist :(qs (bs p lists))
+    where p = length plist
 
