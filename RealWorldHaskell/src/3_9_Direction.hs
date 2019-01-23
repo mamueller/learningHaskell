@@ -33,3 +33,18 @@ direction p q r
 cp_z:: CartVec -> CartVec -> Double
 cp_z (CartVec {x=px,y=py}) (CartVec {x=qx,y=qy}) =  px*qy - py*qx
 
+direction_l::[Point]->Direction
+--the only pattern is a 3 element list
+direction_l [p,q,r]=direction p q r 
+
+threeElSubLists:: [a]-> [[a]]
+threeElSubLists l 
+    | length l == 3 = [l]
+    | length l >=3  = [take 3 l] ++ threeElSubLists (tail l)
+
+
+l :: [Int]
+l=[1,2,3,4,5]
+
+directions ::[Point]->[Direction]
+directions l = map direction_l (threeElSubLists l) 
