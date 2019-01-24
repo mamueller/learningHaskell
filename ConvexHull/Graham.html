@@ -1,0 +1,34 @@
+<head>
+               <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="tester" style="width:600px;height:250px;"></div>
+
+</body>
+<script>
+	TESTER = document.getElementById('tester');
+  var allPoints={
+    x:[1,2,3,4,4],
+    y:[1,2,4,4,1],
+    mode: 'markers+text',
+    type: 'scatter',
+    text: ['p1','p2','p3','p4','p5'],
+    textposition: 'top center',
+    textfont: {
+      family:  'Raleway, sans-serif'
+    },
+    marker: { size: 12 }
+  };
+  var hull={
+    x:[1,3,4,4,1],
+    y:[1,4,4,1,1],
+    mode: 'lines',
+    type: 'scatter'
+  };
+  var data =[allPoints,hull];
+Plotly.plot( TESTER, data ,{margin: { t: 0 } } );
+	//Plotly.plot( TESTER, [{
+	//x: [1, 2, 3, 4, 5],
+	//y: [1, 2, 4, 8, 16] }], {
+	//margin: { t: 0 } } );
+</script>

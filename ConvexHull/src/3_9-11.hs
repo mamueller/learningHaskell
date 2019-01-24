@@ -9,7 +9,7 @@ type Point = CartVec
 data Direction = MyLeft
     |MyStraight
     |MyRight
-    deriving (Show)
+    deriving (Show,Eq)
 p1 :: Point
 p1 = CartVec{x=1, y=1}
 p2 :: CartVec 
@@ -59,13 +59,13 @@ directions l = map direction ( threeElTuples l )
 --from 2 point find point with lowest y coordinate and if y1==y2 with lowest x
 leftmostLower:: Point->Point->Point
 leftmostLower po pn 
-        | yn > yo    = po  
-        | yn == yo  = (if xn>xo then po else pn)   
-        | otherwise  = pn
-        where   yn = y pn
-                yo = y po
-                xn = x pn
-                xo = x po
+    | yn > yo    = po  
+    | yn == yo  = (if xn>xo then po else pn)   
+    | otherwise  = pn
+    where   yn = y pn
+            yo = y po
+            xn = x pn
+            xo = x po
 leftmostLowest::[Point]->Point
 leftmostLowest xs = foldl leftmostLower (head xs) xs
 
@@ -97,7 +97,7 @@ quicksortWithComparisonFunc cf (p:xs) = (quicksortWithComparisonFunc cf (smaller
     where   smaller cf p xs  =[ x | x <-xs ,(x `cf` p) == LT ] 
             bigger cf p xs =[ x | x <-xs ,(x `cf` p) == GT ||  (x `cf` p) ==EQ]
 
---define the comparison func
+--define the comparison func:
 compareByAngleWithX:: Point->Point->Ordering
 compareByAngleWithX p1 p2 = compare ( f p1 ) (f p2)
     where f=lL_p_angle_with_x_axis
@@ -107,3 +107,14 @@ all_except_lL::[Point]
 all_except_lL=L.delete lL l
 ordered::[Point]
 ordered=quicksortWithComparisonFunc compareByAngleWithX all_except_lL
+
+stack:: [Point]
+stack = take 2 l
+
+grahamStep:: ([Point],[Point])->([Point],[Point])
+--this function first checks if the new point p forms a left or right turn
+--with the 2 topmost stack points
+grahamStep ((nc:rcs),(l:(sl:ps)))
+    |((dir == MyLeft)|| (dir== MyStraight)) = (rcs, nc:l:sl:ps) 
+    |(dir == MyRight) = (rcs, nc:l:sl:ps) 
+        where dir = direction(sl,l,nc)

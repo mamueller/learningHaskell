@@ -7,7 +7,7 @@ import Lib
 import MathLib
 
 main :: IO ()
-main do
+main = do
     defaultMain (testGroup "Our Library Tests" [sayYoTest,add5Test])
 
 sayYoTest :: TestTree
