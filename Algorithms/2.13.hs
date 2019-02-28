@@ -15,3 +15,10 @@ m1=array((1,1),(3,3))[
 m2=array((1,1),(3,3))[((i,j),3*(i-1)+j+1)|i<-[1..3],j<-[1..3]]
 t=m1==m2
 --c)
+transpose33 m = array ((1,1),(3,3))[((i,j),m ! (j,i)) |i<-[1..3],j<-[1..3]]
+--d)
+transpose mat = 
+    let uB= snd (bounds mat)
+        m= fst uB 
+        n= snd uB
+    in  array ((1,1),(n,m))[((i,j),mat ! (j,i)) |i<-[1..n],j<-[1..m]]
