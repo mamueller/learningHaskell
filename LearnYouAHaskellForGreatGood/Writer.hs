@@ -53,20 +53,21 @@ headlog (x:xs) = do
 
 conslog:: Int->[Int]->Writer[String] [Int] 
 conslog x xs = do 
-        tell ["applied conslog with x = "++ show x]
+        tell ["applied conslog with x = "++ show x ++ " and xs = " ++ show xs]
         return ( x:xs)
 
 glog :: [Int]-> Writer[String] [Int]
-glog = \ x -> do  
-                tell ["applied g"]
-                return (g x)
+glog xs = let tup  = runWriter( (conslog 3 xs ) >>= (conslog 2) >>= (conslog 1)) 
+              intList = fst tup
+              logList= snd tup
+           in writer (intList,(logList ++ ["applied g"]))
                 
 --f_log :: Writer [String] [Int]->Writer [String] [Int]->Writer [String] [Int]
 --f_log  (writer (a,msgsa)) (writer( b,msgsb))  =  do 
 --                tell ["applied f"]
 --                return (f a b)
-fm =liftM2 f
-res_strict_a  = fm  (glog $! [3,4]) (glog  [5,6 ])
-res_strict_b  = fm (glog  [1]) (glog $! [2])
-res_strict_ab = fm (glog $! [1]) (glog $! [2])
+--fm =liftM2 f
+--res_strict_a  = fm  (glog $! [3,4]) (glog  [5,6 ])
+--res_strict_b  = fm (glog  [1]) (glog $! [2])
+--res_strict_ab = fm (glog $! [1]) (glog $! [2])
 --
