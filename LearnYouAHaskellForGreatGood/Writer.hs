@@ -46,6 +46,16 @@ f_ab = \ a b -> (f $!a) $! b
 g:: [Int]->[Int]
 g = \x -> 1:(2:x)
 
+headlog:: [Int]->Writer[String] Int 
+headlog (x:xs) = do 
+        tell ["applied head log with  "++ show (x:xs)]
+        return  x
+
+conslog:: Int->[Int]->Writer[String] [Int] 
+conslog x xs = do 
+        tell ["applied conslog with x = "++ show x]
+        return ( x:xs)
+
 glog :: [Int]-> Writer[String] [Int]
 glog = \ x -> do  
                 tell ["applied g"]
