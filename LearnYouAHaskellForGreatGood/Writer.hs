@@ -37,9 +37,26 @@ main = mapM_ putStrLn logList
 -- We use the writer monad to protocoll what happened.
 --
 -- Consider the function call f a b! How would you force the strict evaluation of a only, b only, and both a and b?
-f:: Int->Int->Int
-f = \ a b -> a + b 
-g = \ x -> 2*x
-h = \ x -> 3*x
+f:: [Int]->[Int]->[Int]
+f =    \ a b -> (head a) : [ (head b) ] 
+f_a =  \ a b -> (f $!a)    b 
+f_b =  \ a b -> (f   a) $! b 
+f_ab = \ a b -> (f $!a) $! b
 
-res_strict_a = f (g (h 2)) (h (g 2))
+g:: [Int]->[Int]
+g = \x -> 1:(2:x)
+
+glog :: [Int]-> Writer[String] [Int]
+glog = \ x -> do  
+                tell ["applied g"]
+                return (g x)
+                
+--f_log :: Writer [String] [Int]->Writer [String] [Int]->Writer [String] [Int]
+--f_log  (writer (a,msgsa)) (writer( b,msgsb))  =  do 
+--                tell ["applied f"]
+--                return (f a b)
+fm =liftM2 f
+res_strict_a  = fm  (glog $! [3,4]) (glog  [5,6 ])
+res_strict_b  = fm (glog  [1]) (glog $! [2])
+res_strict_ab = fm (glog $! [1]) (glog $! [2])
+--
