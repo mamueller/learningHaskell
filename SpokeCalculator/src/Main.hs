@@ -20,7 +20,16 @@ main = do
   --putStrLn  ("aC32Narrow_dT411_32: \n left:" ++ (show left)   ++ "\nright:" ++ (show right)  )
 
   putStrLn ( spokeLengthStr aC32Wide_dT411_32)
+
   putStrLn ( spokeLengthStr aC32Narrow_dT411_32)
+
+  putStrLn ( spokeLengthStr dtSpline24Rear_org)
+  putStrLn  ("left measured: " ++ show 297  )
+  putStrLn  ("right measured: " ++ show 294 )
+  
+  putStrLn ( spokeLengthStr dtSpline24Rear_rx38D)
+  putStrLn  ("left from rim comparison: " ++ show (297 - 13.5))
+  putStrLn  ("right from rim comparison: " ++ show (294 - 13.5))
 --  -- start opengle part
 --  (_progName,args) <-getArgsAndInitialize
 --  _window <- createWindow "Hello World"
@@ -96,6 +105,20 @@ aC32Narrow= Hub {leftFlange=JBendFlange {flangeHoles=16 ,flangeDiameter=66.0,dis
               ,rightFlange=JBendFlange {flangeHoles=16,flangeDiameter=66.0,distance=49.0}
               ,width= 130.0}
 
+dtSpline24Rear= Hub {
+    leftFlange=StraightPullFlange {
+            flangeHoles=12 
+            ,flangeDiameter=40
+            ,distance=30
+            ,offSetFromMiddle=0
+    }
+    ,rightFlange=StraightPullFlange {
+            flangeHoles=12
+            ,flangeDiameter=47
+            ,distance=50
+            ,offSetFromMiddle=0
+            }
+    ,width= 130.0}
 
 data Rim = Rim { rimHoles:: Int
                 ,outerDiameter::Double  -- equal to the innermost diameter of the tyre, standardized 622mm for every 28"
@@ -103,6 +126,8 @@ data Rim = Rim { rimHoles:: Int
                 ,rimOffSet::Double --0 for symmetric rims , distance of spoke holes to (z) center of rim                  
                 }                        
 dT411_32=Rim {rimHoles=32,outerDiameter=622,depth=13.0,rimOffSet=2}
+rx38D=Rim {rimHoles=24,outerDiameter=622,depth=26.0,rimOffSet=2}
+dtSpline24=Rim {rimHoles=24,outerDiameter=622,depth=12.5,rimOffSet=0}
 
 erd :: Rim -> Double --the inner diameter of the rim plus the width of the rim material 
 erd r  = (outerDiameter r )-(2*(depth r))
@@ -110,6 +135,8 @@ erd r  = (outerDiameter r )-(2*(depth r))
 data Wheel = Wheel {hub::Hub, rim::Rim , pattern::Pattern, name::[Char]}
 aC32Wide_dT411_32 = Wheel {hub=aC32Wide,rim=dT411_32,pattern=threeCrossed32,name="aC32Wide_dT411_32"}
 aC32Narrow_dT411_32 = Wheel {hub=aC32Narrow,rim=dT411_32,pattern=threeCrossed32,name="aC32Narrow_dT411_32" }
+dtSpline24Rear_org= Wheel {hub=dtSpline24Rear,rim=dtSpline24,pattern=spline24,name="dtSpline24Rear_org" }
+dtSpline24Rear_rx38D= Wheel {hub=dtSpline24Rear,rim=rx38D,pattern=spline24,name="dtSpline24Rear_rx38D" }
 
 zDists :: Hub -> (Double,Double) --compute the distance of the flanges from the center of the hub
 zDists (Hub leftFlange rightFlange width)  = ( hw-(distance leftFlange) , hw-(distance rightFlange) )
