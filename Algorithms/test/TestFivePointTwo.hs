@@ -4,6 +4,14 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import FivePointTwo
+import Point
+
+p1 :: Point
+p1 = Point{x=1, y=1}
+p2 :: Point 
+p2 = Point {x=2, y=2}
+p3 :: Point 
+p3 = Point {x=3, y=2}
 
 myCompFunc :: Point->Point->Bool
 myCompFunc p1 p2 = (dist p1) <= (dist p2)

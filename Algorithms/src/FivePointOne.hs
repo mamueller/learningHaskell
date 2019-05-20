@@ -5,28 +5,14 @@
 -- origin to be at the front of the queue.
 module FivePointOne
     (   
-         Point(..) --(..) to also export the constructors
-        ,dist
-        ,emptyPQ
+        emptyPQ
         ,pqEmpty
         ,enPQ
         ,dePQ
         ,frontPQ
     )
 where
-data Point = Point {x::Double,y::Double}
-    --deriving (Show,Eq,Ord)
-    deriving (Show,Eq)
-    --deriving (Show)
-
-dist :: Point -> Double
-dist p = sqrt ( (x p)**2 + (y p)**2)
-
-instance Ord Point
-    where 
-        x <= y = (dist x <= dist y)
-        x >= y = (dist x >= dist y)
-        
+import Point        
 -- implement the queue        
 newtype PQueue a = PQ[a]
     deriving (Show,Eq)

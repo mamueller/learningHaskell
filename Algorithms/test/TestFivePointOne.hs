@@ -4,6 +4,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import FivePointOne
+import Point        
 
 p1 :: Point
 p1 = Point{x=1, y=1}

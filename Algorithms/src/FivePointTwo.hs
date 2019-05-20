@@ -5,49 +5,16 @@
 -- origin to be at the front of the queue.
 module FivePointTwo
     (   
-         Point(..) --(..) to also export the constructors
-        ,PQueue(..)
-        ,dist
-        ,exampleCompFunc
+        PQueue(..)
         ,emptyPQ
         ,pqEmpty
-        ,p1
-        ,p2
-        ,p3
         ,enPQ
         ,dePQ
         ,frontPQ
     )
 where
-data Point = Point {x::Double,y::Double}
-    --deriving (Show,Eq,Ord)
-    deriving (Eq)
-    --deriving (Show)
+import Point
 
-instance Show Point
-    where 
-        show p =  "I am a point x=" ++ (show (x p)) ++ " y=" ++ (show (y p)) 
-
-instance Ord Point
-    where 
-        x <= y = (dist x <= dist y)
-        x >= y = (dist x >= dist y)
-
-dist :: Point -> Double
-dist p = sqrt ( (x p)**2 + (y p)**2)
-
-exampleCompFunc :: Point->Point->Bool
-exampleCompFunc p1 p2 = (dist p1) <= (dist p2)
-
-p1 :: Point
-p1 = Point{x=1, y=1}
-p2 :: Point 
-p2 = Point {x=2, y=2}
-p3 :: Point 
-p3 = Point {x=3, y=2}
-
-
-        
 -- implement the queue        
 data PQueue a = PQ {elements::[a],compFunc::(a->a->Bool)}
 --newtype PQueue a = PQ [a]
