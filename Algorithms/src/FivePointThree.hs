@@ -1,8 +1,3 @@
--- Given a set of points represented by their coordinates (x,y) in a 2-D space, 
--- the distance of a point of coordinates (x,y) from the origin is defined as sqrt(x**2+y**2)
--- Define an appropriate type in Haskell and the corresponding overloading operation <= 
--- to handle these points in a priority queue! We always want the point closer to the 
--- origin to be at the front of the queue.
 module FivePointThree
     (   
         Set(..)

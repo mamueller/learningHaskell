@@ -29,7 +29,7 @@ library
       Point
       FivePointOne
       FivePointTwo
-      FivePointThree
+--      FivePointThree
       FivePointFour
      -- Lib
   other-modules:

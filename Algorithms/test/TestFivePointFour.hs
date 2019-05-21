@@ -20,6 +20,7 @@ main :: IO ()
 main = do
     defaultMain (testGroup "set Tests" [
          equalSetTest 
+        ,uniqueElementlistTest 
         ,setEmptyTest_1
         ,setEmptyTest_2
         ,addSetTest
@@ -36,7 +37,11 @@ main = do
 
 equalSetTest:: TestTree
 equalSetTest= testCase "Testing equality of sets constructed from lists with duplicates "
-    (assertEqual "Should return True" True ( (Set [p1,p1,p2])==(Set [p1,p2])))
+    (assertEqual "Should return True"  (setfromList [p1,p1,p2]) (setfromList [p1,p2]))
+
+uniqueElementlistTest:: TestTree
+uniqueElementlistTest= testCase "Testing uniqueness of elementslists of sets constructed from lists with duplicates "
+    (assertEqual "Should return True"  (elementlist((addSet p1 (Set [p1,p2])))) (elementlist(Set [p1,p2])))
 
 setEmptyTest_1:: TestTree
 setEmptyTest_1= testCase "Testing empty set "
@@ -47,8 +52,8 @@ setEmptyTest_2= testCase "Testing one element set "
     (assertEqual "Should return False " False ( setEmpty (Set [p1] )))
 
 addSetTest::TestTree
-addSetTest = testCase "testing that an element is inserted "
-    (assertEqual "should return " (Set [p2,p1,p3]) (addSet p2 (Set [p1,p3] ))) 
+addSetTest = testCase "testing that an element is inserted at the right position"
+    (assertEqual "should return " (Set [p1,p2,p3]) (addSet p2 (Set [p1,p3] ))) 
 
 delSetTest::TestTree
 delSetTest = testCase "testing that an element is deleted "

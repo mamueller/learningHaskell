@@ -1,8 +1,4 @@
--- Given a set of points represented by their coordinates (x,y) in a 2-D space, 
--- the distance of a point of coordinates (x,y) from the origin is defined as sqrt(x**2+y**2)
--- Define an appropriate type in Haskell and the corresponding overloading operation <= 
--- to handle these points in a priority queue! We always want the point closer to the 
--- origin to be at the front of the queue.
+--considering the set implementation by means of ordered lists implement--
 module FivePointFour
     (   
         Set(..)
@@ -14,40 +10,60 @@ module FivePointFour
         ,included
         ,inter
         ,union
+        ,unique
+        ,setfromList 
     )
 where
 import Point
+import Data.List (elem)
+--helper to build sets from lists with duplicates
+--but better build the set with addSet from the elements by folding
+--this also ensures the right order of the internal ordered list
+unique ::(Eq a)=> [a] ->[a]
+unique []  = [] 
+unique [x]  = [x] 
+unique (x:xs)  = x:(filter (/=x) (unique xs))
+
 -- implement the queue        
 newtype Set a = Set {elementlist::[a]}
     deriving (Show)
 
-instance (Eq a)=>Eq (Set a)
+instance (Ord a)=>Eq (Set a)
     where 
         s1 == s2 =and [ (included s1 s2) , (included s2 s1)]
 
-emptySet ::(Eq a)=> Set a
+setfromList :: ( Ord a)=> [a]->(Set a)
+setfromList xs = foldl f emptySet xs
+    where f  = \ acc x ->(addSet x acc)
+
+emptySet ::(Ord a)=> Set a
 emptySet =Set []
 
 setEmpty ::Set a -> Bool
 setEmpty (Set []) = True
 setEmpty _       = False
 
-addSet ::(Eq a)=>  a -> Set a -> Set a
-addSet x (Set q) = Set (x:q)
+addSet ::(Ord a)=>  a -> Set a -> Set a
+addSet x (Set q)    |inSet (Set q) x = Set q
+                    | otherwise= Set (insert x q)
+                        where 
+                            insert x [] =[x]
+                            insert x r@(e:r')   | x<e = x:r
+                                                | otherwise = e:(insert x r')
 
-delSet ::(Eq a)=> a -> Set a -> Set a 
+delSet ::(Ord a)=> a -> Set a -> Set a 
 delSet _ (Set [] ) = error "delSet: cannot delelte from empty set"
 delSet x (Set xs) = Set (filter (/= x) xs) 
 
-inSet :: (Eq a)=> Set a -> a -> Bool
+inSet :: (Ord a)=> Set a -> a -> Bool
 inSet s p = or [ x==p |x <- (elementlist s )]   
                
-included :: (Eq a)=> Set a -> Set a ->Bool
+included :: (Ord a)=> Set a -> Set a ->Bool
 included s1 s2 = and [ inSet s2 x| x <- elementlist s1]  
 
-inter :: (Eq a)=> Set a -> Set a -> Set a 
+inter :: (Ord a)=> Set a -> Set a -> Set a 
 inter s1 s2 = Set [ x| x <- elementlist s1,(inSet s2 x)]  
 
-union :: (Eq a)=> Set a -> Set a -> Set a 
+union :: (Ord a)=> Set a -> Set a -> Set a 
 union s1 s2 = Set ( (elementlist s1) ++ (elementlist s2))
 
