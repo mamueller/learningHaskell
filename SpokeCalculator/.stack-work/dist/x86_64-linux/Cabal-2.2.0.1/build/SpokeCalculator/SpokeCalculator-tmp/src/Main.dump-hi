@@ -1,11 +1,11 @@
 
 ==================== FINAL INTERFACE ====================
-2018-08-26 13:11:40.512857921 UTC
+2019-05-30 10:10:02.204335243 UTC
 
 interface main:Main 8043
-  interface hash: 89f2928a6e1b12bba85f9fddbce8cdcb
-  ABI hash: 4764d517ff91cfde139e157d647af194
-  export-list hash: 77ffe2411b75b81831406036ef6ca087
+  interface hash: 54caa7154e3bf305e4d8f4aface0c99e
+  ABI hash: 0b40fd95376863fc606585aaf70cd42c
+  export-list hash: b4a8bd457c6a824a4e34531217ccb285
   orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
   flag hash: c7f9086a2f5c81be846f12374ab17576
   opt_hash: 14e536840aca4e889cad654e6f9b79c1
@@ -15,10 +15,15 @@ interface main:Main 8043
   where
 exports:
   Main.aC32Narrow
+  Main.aC32Narrow_dT411_32
   Main.aC32Wide
   Main.aC32Wide_dT411_32
   Main.dT411_32
   Main.display
+  Main.dtSpline24
+  Main.dtSpline24Rear
+  Main.dtSpline24Rear_org
+  Main.dtSpline24Rear_rx38D
   Main.erd
   Main.greet
   Main.main
@@ -30,7 +35,9 @@ exports:
   Main.phiOneHub
   Main.pointDistance
   Main.printConfig
+  Main.rx38D
   Main.spline24
+  Main.spokeLengthStr
   Main.spokeLengths
   Main.threeCrossed32
   Main.toCartesian
@@ -44,7 +51,7 @@ exports:
   Main.RightFlange
   Main.Rim{Main.Rim depth outerDiameter rimHoles rimOffSet}
   Main.RimIntervals
-  Main.Wheel{Main.Wheel hub pattern rim}
+  Main.Wheel{Main.Wheel hub name pattern rim}
 module dependencies:
 package dependencies: GLURaw-2.0.0.4 GLUT-2.7.0.14
                       ObjectName-1.1.0.1 OpenGL-3.0.2.2 OpenGLRaw-3.3.1.0
@@ -82,10 +89,7 @@ family instance modules: base-4.11.1.0:Control.Applicative
                          template-haskell-2.13.0.0:Language.Haskell.TH.Syntax
                          text-1.2.3.0:Data.Text
 import  -/  GLUT-2.7.0.14:Graphics.UI.GLUT 6c30ebbf5957dc926a43429daf7f9aff
-import  -/  GLUT-2.7.0.14:Graphics.UI.GLUT.Begin 8397fe15bcbeaeb71190edaf97ced1b6
 import  -/  GLUT-2.7.0.14:Graphics.UI.GLUT.Callbacks.Window 056cf3e6a54650a7b18bb70722f35ee5
-import  -/  GLUT-2.7.0.14:Graphics.UI.GLUT.Initialization efeac80419cca79a4ff8f49695688894
-import  -/  GLUT-2.7.0.14:Graphics.UI.GLUT.Window ae659e55a5d81fdf983535f43c2c8977
 import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL 6c80ab72f9beffe5b24fa23656050f15
 import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL.GL.BeginEnd 8a5f4291ad56af4d3455345e9dcebde7
 import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL.GL.FlushFinish af2586f3c3f60510eca28ba9c3ecc3af
@@ -94,7 +98,6 @@ import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL.GL.PrimitiveMode b445e72b12
 import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL.GL.Tensor 84f3b65a6fec2674503117a169397341
 import  -/  OpenGL-3.0.2.2:Graphics.Rendering.OpenGL.GL.VertexSpec 1aacac0a112c66520c47ba37db1b62d7
 import  -/  OpenGLRaw-3.3.1.0:Graphics.GL.Types c06737da8df67bc34690898a6a2f49c5
-import  -/  StateVar-1.1.1.1:Data.StateVar 1341e844b291a17f925e03c497b7fa71
 import  -/  base-4.11.1.0:Data.Foldable 8ed35c38958063956af33c935ea03444
 import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
 import  -/  base-4.11.1.0:GHC.Float 99c69d365bb2607725a22530ce1ca4b4
@@ -757,7 +760,7 @@ b36c1c13055a8762720037d052383f53
   $wpointDistance :: Main.Coords -> Main.Coords -> GHC.Prim.Double#
   {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><S,1*U>,
      Inline: [0] -}
-9fbba376b2149b2a1a8f32730cad06a8
+8869a0a8f0d16c832d68ffcd90df3f88
   $wspokeLengths ::
     Main.Hub
     -> Main.Rim
@@ -793,7 +796,7 @@ b36c1c13055a8762720037d052383f53
                  } in
                  let {
                    rimPoint2 :: Main.Coords
-                   = Main.CylinderCoords rimPoint rimPoint1 Main.main6
+                   = Main.CylinderCoords rimPoint rimPoint1 Main.dtSpline1
                  } in
                  let {
                    ds :: (GHC.Types.Double, GHC.Types.Double)
@@ -944,9 +947,12 @@ b3c863aa9e3f8e8e9f5e4da5718abc12
            rimOffSet :: GHC.Types.Double}
 74eb666ca6a874ffdcdcb011caf68491
   type RimIntervals = GHC.Types.Int
-81a73f7a9efb4c5e721ac0c1e9a2dbd8
+50d8ce2e1ca45429d07f96fa4aa6bc2f
   data Wheel
-    = Wheel {hub :: Main.Hub, rim :: Main.Rim, pattern :: Main.Pattern}
+    = Wheel {hub :: Main.Hub,
+             rim :: Main.Rim,
+             pattern :: Main.Pattern,
+             name :: [GHC.Types.Char]}
 9df85299aa301e87f6f8729bd1f048c6
   aC32Narrow :: Main.Hub
   {- HasNoCafRefs, Strictness: m,
@@ -984,6 +990,21 @@ b3c863aa9e3f8e8e9f5e4da5718abc12
 acab36baab350cab85d6e053bb405de7
   aC32Narrow7 :: GHC.Types.Double
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 42.0##) -}
+f62219c86ce72e149e79be51eab52308
+  aC32Narrow_dT411_1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   Main.aC32Narrow_dT411_2) -}
+7e73173ffbbc493d63b961bd39e2dc38
+  aC32Narrow_dT411_2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("aC32Narrow_dT411_32"#) -}
+98b2ce3684d7e5b5bbf5a948418f8fd2
+  aC32Narrow_dT411_32 :: Main.Wheel
+  {- Strictness: m,
+     Unfolding: (Main.Wheel
+                   Main.aC32Narrow
+                   Main.dT411_32
+                   Main.threeCrossed32
+                   Main.aC32Narrow_dT411_1) -}
 839aec5d33a930b3bdbe42f99939a5af
   aC32Wide :: Main.Hub
   {- HasNoCafRefs, Strictness: m,
@@ -1001,13 +1022,20 @@ b5774ab905283c18f40ef5f63e417e2c
 ac2004d7a29a6a5bcf78cc68bf34ef3b
   aC32Wide2 :: GHC.Types.Double
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 33.5##) -}
-e40232f2ad15ecb836d6dd30203dc7f5
+6124878c1c64535ae98b71b71f212362
+  aC32Wide_dT411_1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.aC32Wide_dT411_2) -}
+ad835bc5d82be19fe5534156957d5278
+  aC32Wide_dT411_2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("aC32Wide_dT411_32"#) -}
+fa59d549841a75143ab300598cbdeb59
   aC32Wide_dT411_32 :: Main.Wheel
-  {- HasNoCafRefs, Strictness: m,
+  {- Strictness: m,
      Unfolding: (Main.Wheel
                    Main.aC32Wide
                    Main.dT411_32
-                   Main.threeCrossed32) -}
+                   Main.threeCrossed32
+                   Main.aC32Wide_dT411_1) -}
 67f71ff24c0af18d6f28db4c54340182
   dT411_1 :: GHC.Types.Double
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 2.0##) -}
@@ -1170,6 +1198,91 @@ c98c0cb16cd2f56dadaa9cb176a6c28f
                  case ds of wild {
                    Main.JBendFlange ds1 ds2 ds3 -> ds3
                    Main.StraightPullFlange ds1 ds2 ds3 ds4 -> ds3 }) -}
+17ad3661e806824ae2595c450c708c00
+  dtSpline1 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 0.0##) -}
+8cf00412fc445d0f41ea18ec4466ea15
+  dtSpline2 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 12.5##) -}
+3d59963f86cdf7b0ce5f4eca49fb3fa3
+  dtSpline24 :: Main.Rim
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (Main.Rim
+                   Main.dtSpline3
+                   Main.dT411_3
+                   Main.dtSpline2
+                   Main.dtSpline1) -}
+e84552129c039abe996c7a283a4022d7
+  dtSpline24Rear :: Main.Hub
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (Main.Hub
+                   Main.dtSpline24Rear5
+                   Main.dtSpline24Rear1
+                   Main.aC32Narrow1) -}
+ee2cc6d597687e136f5a45090df85307
+  dtSpline24Rear1 :: Main.Flange
+  {- HasNoCafRefs, Strictness: m2,
+     Unfolding: (Main.StraightPullFlange
+                   Main.dtSpline24Rear4
+                   Main.dtSpline24Rear3
+                   Main.dtSpline24Rear2
+                   Main.dtSpline1) -}
+8351a31a971689cbe6a1108e9fd907ff
+  dtSpline24Rear2 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 50.0##) -}
+c20a3fcfb78391650d481e30f9546fd2
+  dtSpline24Rear3 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 47.0##) -}
+13d96d3d455b28ceb6023ac05bb85363
+  dtSpline24Rear4 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 12#) -}
+b2ee86bcd9da2fc865f19dfb5425e6fc
+  dtSpline24Rear5 :: Main.Flange
+  {- HasNoCafRefs, Strictness: m2,
+     Unfolding: (Main.StraightPullFlange
+                   Main.dtSpline24Rear4
+                   Main.dtSpline24Rear7
+                   Main.dtSpline24Rear6
+                   Main.dtSpline1) -}
+95dc05ac808d46ddcb6b400d8de90205
+  dtSpline24Rear6 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 30.0##) -}
+1c48f8cfb70de3151d73022322e97396
+  dtSpline24Rear7 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 40.0##) -}
+c8bd6ef7b6a431d7a64024af9bb9f6e6
+  dtSpline24Rear_org :: Main.Wheel
+  {- Strictness: m,
+     Unfolding: (Main.Wheel
+                   Main.dtSpline24Rear
+                   Main.dtSpline24
+                   Main.spline24
+                   Main.dtSpline24Rear_org1) -}
+8cad674c254837f93a14835a5a3cd834
+  dtSpline24Rear_org1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   Main.dtSpline24Rear_org2) -}
+8e6af68bd4cf69bb8d04d1ab5619419a
+  dtSpline24Rear_org2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("dtSpline24Rear_org"#) -}
+b76761d001403bd2039230b7ac039e5d
+  dtSpline24Rear_rx38D :: Main.Wheel
+  {- Strictness: m,
+     Unfolding: (Main.Wheel
+                   Main.dtSpline24Rear
+                   Main.rx38D
+                   Main.spline24
+                   Main.dtSpline24Rear_rx38D1) -}
+33829f78caaa84ddc22a717e0cbcca84
+  dtSpline24Rear_rx38D1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   Main.dtSpline24Rear_rx38D2) -}
+c690d35e75967d4dc3279d0c54f1c2bd
+  dtSpline24Rear_rx38D2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("dtSpline24Rear_rx38D"#) -}
+eee9293dcf2c9577f25c8e33f9e3c7ae
+  dtSpline3 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 24#) -}
 1aa42319dec46a59a46ef2968c262627
   erd :: Main.Rim -> GHC.Types.Double
   {- Arity: 1, HasNoCafRefs,
@@ -1198,16 +1311,16 @@ c98c0cb16cd2f56dadaa9cb176a6c28f
                  case ds of wild {
                    Main.JBendFlange ds1 ds2 ds3 -> ds1
                    Main.StraightPullFlange ds1 ds2 ds3 ds4 -> ds1 }) -}
-c1cfffbd651b610204c20d3224902232
+eb4a4fe454d41e06bc5a892923984072
   greet :: [GHC.Types.Char] -> [GHC.Types.Char] -> [GHC.Types.Char]
   {- Arity: 2, HasNoCafRefs, Strictness: <L,1*U><L,U>,
-     Unfolding: (\ (name :: [GHC.Types.Char])
+     Unfolding: (\ (name1 :: [GHC.Types.Char])
                    (timeStr :: [GHC.Types.Char]) ->
                  GHC.CString.unpackAppendCString#
                    Main.greet2
                    (GHC.Base.++
                       @ GHC.Types.Char
-                      name
+                      name1
                       (GHC.CString.unpackAppendCString# Main.greet1 timeStr))) -}
 cfbfbb4fbfa10ac7c9aeffb144995b06
   greet1 :: GHC.Prim.Addr#
@@ -1215,14 +1328,14 @@ cfbfbb4fbfa10ac7c9aeffb144995b06
 164dab1404bc0ebb57fd30a9552b142d
   greet2 :: GHC.Prim.Addr#
   {- HasNoCafRefs, Unfolding: ("Hello "#) -}
-81a73f7a9efb4c5e721ac0c1e9a2dbd8
+50d8ce2e1ca45429d07f96fa4aa6bc2f
   hub :: Main.Wheel -> Main.Hub
   RecSel Left Main.Wheel
   {- Arity: 1, HasNoCafRefs,
-     Strictness: <S(SLL),1*U(1*U(U,U,U),A,A)>m,
+     Strictness: <S(SLLL),1*U(1*U(U,U,U),A,A,A)>m,
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Wheel) ->
-                 case ds of wild { Main.Wheel ds1 ds2 ds3 -> ds1 }) -}
+                 case ds of wild { Main.Wheel ds1 ds2 ds3 ds4 -> ds1 }) -}
 1c4581458fa7c85f1188c7d2914802d0
   leftFlange :: Main.Hub -> Main.Flange
   RecSel Left Main.Hub
@@ -1230,12 +1343,12 @@ cfbfbb4fbfa10ac7c9aeffb144995b06
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Hub) ->
                  case ds of wild { Main.Hub ds1 ds2 ds3 -> ds1 }) -}
-2f5e6e8c24b98eb70af0bbadbad1e517
+2accce2aa70be0a3ebd0293fe6dff656
   main :: GHC.Types.IO ()
   {- Arity: 1, Strictness: <S,U>,
      Unfolding: InlineRule (0, True, True)
                 Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
-ff2cba14707375a6426e1d313d2826dd
+9a43e5123fa54b2d0f225f65b4bd1b94
   main1 ::
     GHC.Prim.State# GHC.Prim.RealWorld
     -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
@@ -1248,7 +1361,7 @@ ff2cba14707375a6426e1d313d2826dd
                         (GHC.CString.unpackAppendCString#
                            Main.greet2
                            (GHC.CString.unpackAppendCString#
-                              Main.main7
+                              Main.main22
                               (GHC.CString.unpackAppendCString#
                                  Main.greet1
                                  (Data.Time.LocalTime.Internal.ZonedTime.$fShowUTCTime_$cshow
@@ -1257,82 +1370,137 @@ ff2cba14707375a6426e1d313d2826dd
                         ipv of ds2 { (#,#) ipv2 ipv3 ->
                  case GHC.IO.Handle.Text.hPutStr2
                         GHC.IO.Handle.FD.stdout
-                        Main.main5
+                        Main.main21
                         GHC.Types.True
                         ipv2 of ds3 { (#,#) ipv4 ipv5 ->
-                 case System.Environment.getProgName1
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main20
+                        GHC.Types.True
                         ipv4 of ds4 { (#,#) ipv6 ipv7 ->
-                 case System.Environment.getArgs1 ipv6 of ds5 { (#,#) ipv8 ipv9 ->
-                 case Graphics.UI.GLUT.Initialization.getArgsAndInitialize2
-                        ipv7
-                        ipv9
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main19
+                        GHC.Types.True
+                        ipv6 of ds5 { (#,#) ipv8 ipv9 ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main15
+                        GHC.Types.True
                         ipv8 of ds6 { (#,#) ipv10 ipv11 ->
-                 case (GHC.Magic.noinline
-                         @ (GHC.Types.IO GHC.IO.Encoding.Types.TextEncoding)
-                         GHC.IO.Encoding.getForeignEncoding)
-                        `cast`
-                      (GHC.Types.N:IO[0] <GHC.IO.Encoding.Types.TextEncoding>_R)
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main11
+                        GHC.Types.True
                         ipv10 of ds7 { (#,#) ipv12 ipv13 ->
-                 case GHC.Foreign.charIsRepresentable3
-                        @ Foreign.C.Types.CInt
-                        ipv13
-                        Main.main3
-                        Graphics.UI.GLUT.Window.createWindow1
-                          `cast`
-                        (<GHC.Ptr.Ptr Foreign.C.Types.CChar>_R
-                         ->_R Sym (GHC.Types.N:IO[0] <Foreign.C.Types.CInt>_R))
-                        ipv12 of ds { (#,#) ipv14 ipv15 ->
-                 case Graphics.UI.GLUT.Callbacks.Registration.setCallback1
-                        @ Graphics.UI.GLUT.Raw.Callbacks.DisplayFunc
-                        @ Graphics.UI.GLUT.Raw.Callbacks.DisplayFunc
-                        Graphics.UI.GLUT.Callbacks.Registration.DisplayCB
-                        Graphics.UI.GLUT.Callbacks.Window.displayCallback2
-                          `cast`
-                        (<GHC.Ptr.FunPtr Graphics.UI.GLUT.Raw.Callbacks.DisplayFunc>_R
-                         ->_R Sym (GHC.Types.N:IO[0] <()>_R))
-                        Graphics.UI.GLUT.Raw.Callbacks.makeDisplayFunc
-                        Main.main2
-                        ipv14 of ds8 { (#,#) ipv16 ipv17 ->
-                 Graphics.UI.GLUT.Raw.Functions.glutMainLoop1
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main10
+                        GHC.Types.True
+                        ipv12 of ds8 { (#,#) ipv14 ipv15 ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main6
+                        GHC.Types.True
+                        ipv14 of ds9 { (#,#) ipv16 ipv17 ->
+                 GHC.IO.Handle.Text.hPutStr2
+                   GHC.IO.Handle.FD.stdout
+                   Main.main2
+                   GHC.Types.True
                    ipv16 } } } } } } } } }) -}
-fd91d7edcb1dd84e85b0b8d6df7b6a62
-  main2 :: GHC.Base.Maybe Graphics.UI.GLUT.Raw.Callbacks.DisplayFunc
-  {- Strictness: m2,
-     Unfolding: (GHC.Base.Just
-                   @ Graphics.UI.GLUT.Raw.Callbacks.DisplayFunc
-                   Main.display1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R))) -}
-acd954d7b2fcb4b567acce70420fc7c6
-  main3 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackCString# Main.main4) -}
-35f48cef2b4378b2439868dd538a2c09
-  main4 :: GHC.Prim.Addr#
-  {- HasNoCafRefs, Unfolding: ("Hello World"#) -}
-f085ca74548fe3815c8f6ac5a9d63d06
-  main5 :: GHC.Base.String
-  {- Unfolding: (case Main.$wspokeLengths
-                        Main.aC32Wide
-                        Main.dT411_32
-                        Main.threeCrossed32 of ww { (#,#) ww1 ww2 ->
-                 case ww1 of ww3 { GHC.Types.D# ww4 ->
-                 GHC.Float.$w$sshowSignedFloat
-                   GHC.Float.$fShowDouble2
-                   GHC.Float.minExpt
-                   ww4
-                   (GHC.Types.[] @ GHC.Types.Char) } }) -}
-12ae35a1f884c1cadde3b48d5231032b
-  main6 :: GHC.Types.Double
-  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 0.0##) -}
-5a9063bb82079cd66f0d70d835ffccc6
-  main7 :: GHC.Prim.Addr#
+b2f24235453fdeecd946986c1bf1dbfb
+  main10 :: [GHC.Types.Char]
+  {- Unfolding: (Main.spokeLengthStr Main.dtSpline24Rear_rx38D) -}
+be1185adef13dfe653d20fd1dc810377
+  main11 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main14
+                   Main.main12) -}
+1b6c7ac0267ac108ab5c4e0eb61ea002
+  main12 :: [GHC.Types.Char]
+  {- Unfolding: (case GHC.Show.$w$cshowsPrec4
+                        0#
+                        Main.main13
+                        (GHC.Types.[] @ GHC.Types.Char) of ww2 { (#,#) ww3 ww4 ->
+                 GHC.Types.: @ GHC.Types.Char ww3 ww4 }) -}
+81eb2a4eef9f0c2f38415186674fdb23
+  main13 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (294) -}
+2819da838e585fdc52c08f757de7f078
+  main14 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("right measured: "#) -}
+849bb174ed0d3748cf03640c0bbdd519
+  main15 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main18
+                   Main.main16) -}
+32f70a37290eddd6619c7afb7623aae4
+  main16 :: [GHC.Types.Char]
+  {- Unfolding: (case GHC.Show.$w$cshowsPrec4
+                        0#
+                        Main.main17
+                        (GHC.Types.[] @ GHC.Types.Char) of ww2 { (#,#) ww3 ww4 ->
+                 GHC.Types.: @ GHC.Types.Char ww3 ww4 }) -}
+483407e49e3dddbda95af39ff92d2890
+  main17 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (297) -}
+d8efb59f1f61bfe7d7ce056aed429e0c
+  main18 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("left measured: "#) -}
+4ecc71b6662a14df05b111ba3ad3f0c2
+  main19 :: [GHC.Types.Char]
+  {- Unfolding: (Main.spokeLengthStr Main.dtSpline24Rear_org) -}
+fbf467dcababf561926eea383f1d5f94
+  main2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main5
+                   Main.main3) -}
+3a6e792bc6738ef26de3cb17a462f570
+  main20 :: [GHC.Types.Char]
+  {- Unfolding: (Main.spokeLengthStr Main.aC32Narrow_dT411_32) -}
+bd8133c7701afc60d146b9be5d3caafa
+  main21 :: [GHC.Types.Char]
+  {- Unfolding: (Main.spokeLengthStr Main.aC32Wide_dT411_32) -}
+86af33350ff72473372234c464248f4f
+  main22 :: GHC.Prim.Addr#
   {- HasNoCafRefs, Unfolding: ("Markus"#) -}
-1a3807e5498b7a099a9e2b89ca20a3e2
-  main8 ::
+49588c3142c124d6a3c53b5f3619c9ec
+  main23 ::
     GHC.Prim.State# GHC.Prim.RealWorld
     -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
   {- Arity: 1,
      Unfolding: (GHC.TopHandler.runMainIO1
                    @ ()
                    Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R))) -}
+65992212db5c04f443981a9aadb8f13e
+  main3 :: GHC.Base.String
+  {- Unfolding: (Main.main4 (GHC.Types.[] @ GHC.Types.Char)) -}
+a2ca66f93f1a91bac545a7a055ede6f5
+  main4 :: GHC.Show.ShowS
+  {- Unfolding: (GHC.Float.$w$sshowSignedFloat
+                   GHC.Float.$fShowDouble2
+                   GHC.Float.minExpt
+                   280.5##) -}
+fa94cdaeb6d7598955c9117b8be6adcf
+  main5 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("right from rim comparison: "#) -}
+f28327ccc8b8fddc80da09ae7ffe9f22
+  main6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main9
+                   Main.main7) -}
+dc3e971063879e20adf9d59801f310ce
+  main7 :: GHC.Base.String
+  {- Unfolding: (Main.main8 (GHC.Types.[] @ GHC.Types.Char)) -}
+ca43052c29f9ab45edd91dccda775b5c
+  main8 :: GHC.Show.ShowS
+  {- Unfolding: (GHC.Float.$w$sshowSignedFloat
+                   GHC.Float.$fShowDouble2
+                   GHC.Float.minExpt
+                   283.5##) -}
+a715d7e6eac83eb935c736c2b4e9ed29
+  main9 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("left from rim comparison: "#) -}
 5a78486363edcd6d5a761f3a3b742232
   myPoints ::
     [(Graphics.GL.Types.GLfloat, Graphics.GL.Types.GLfloat,
@@ -1356,6 +1524,13 @@ de24f181d5d0536fa14dff081a9ee60b
     -> [(Graphics.GL.Types.GLfloat, Graphics.GL.Types.GLfloat,
          Graphics.GL.Types.GLfloat)]
   {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U> -}
+50d8ce2e1ca45429d07f96fa4aa6bc2f
+  name :: Main.Wheel -> [GHC.Types.Char]
+  RecSel Left Main.Wheel
+  {- Arity: 1, HasNoCafRefs, Strictness: <S(LLLS),1*U(A,A,A,1*U)>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (ds :: Main.Wheel) ->
+                 case ds of wild { Main.Wheel ds1 ds2 ds3 ds4 -> ds4 }) -}
 557ab5bdedd3967f9bb7840140aea1b9
   norm :: Main.Coords -> GHC.Types.Double
   {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>m, Inline: [0],
@@ -1404,13 +1579,14 @@ b3c863aa9e3f8e8e9f5e4da5718abc12
 0cc83b7d2b3cdcf83529944a8f2f1cb4
   p2 :: GHC.Types.Double
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 1.0##) -}
-81a73f7a9efb4c5e721ac0c1e9a2dbd8
+50d8ce2e1ca45429d07f96fa4aa6bc2f
   pattern :: Main.Wheel -> Main.Pattern
   RecSel Left Main.Wheel
-  {- Arity: 1, HasNoCafRefs, Strictness: <S(LLS),1*U(A,A,1*U(U,U))>m,
+  {- Arity: 1, HasNoCafRefs,
+     Strictness: <S(LLSL),1*U(A,A,1*U(U,U),A)>m,
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Wheel) ->
-                 case ds of wild { Main.Wheel ds1 ds2 ds3 -> ds3 }) -}
+                 case ds of wild { Main.Wheel ds1 ds2 ds3 ds4 -> ds3 }) -}
 f7a5e3ba6e282041fb4fb947a63f66da
   pc1 :: Main.Coords
   {- Strictness: m1,
@@ -1494,14 +1670,14 @@ bc0c866f62e2c36f49cf6132852a4e6b
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Hub) ->
                  case ds of wild { Main.Hub ds1 ds2 ds3 -> ds2 }) -}
-81a73f7a9efb4c5e721ac0c1e9a2dbd8
+50d8ce2e1ca45429d07f96fa4aa6bc2f
   rim :: Main.Wheel -> Main.Rim
   RecSel Left Main.Wheel
   {- Arity: 1, HasNoCafRefs,
-     Strictness: <S(LSL),1*U(A,1*U(U,U,U,U),A)>m,
+     Strictness: <S(LSLL),1*U(A,1*U(U,U,U,U),A,A)>m,
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Wheel) ->
-                 case ds of wild { Main.Wheel ds1 ds2 ds3 -> ds2 }) -}
+                 case ds of wild { Main.Wheel ds1 ds2 ds3 ds4 -> ds2 }) -}
 b3c863aa9e3f8e8e9f5e4da5718abc12
   rimHoles :: Main.Rim -> GHC.Types.Int
   RecSel Left Main.Rim
@@ -1525,6 +1701,17 @@ b3c863aa9e3f8e8e9f5e4da5718abc12
      Unfolding: InlineRule (1, True, False)
                 (\ (ds :: Main.Rim) ->
                  case ds of wild { Main.Rim ds1 ds2 ds3 ds4 -> ds4 }) -}
+31c5af2137a59e9c2032b8092ff2e150
+  rx38D :: Main.Rim
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (Main.Rim
+                   Main.dtSpline3
+                   Main.dT411_3
+                   Main.rx38D1
+                   Main.dT411_1) -}
+03b7a76a615580e2ad577597bacdc97d
+  rx38D1 :: GHC.Types.Double
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.D# 26.0##) -}
 21097630787492ec49ebf9fceaaf690c
   spline1 :: GHC.Types.Int
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 6#) -}
@@ -1532,16 +1719,61 @@ b3c863aa9e3f8e8e9f5e4da5718abc12
   spline24 :: Main.Pattern
   {- HasNoCafRefs, Strictness: m,
      Unfolding: (Main.CrossedPattern Main.spline1 Main.threeCrossed1) -}
-6ee8d571667125a70538be1d2d77e659
+9bdaf29b214ae5ed4bb778062e1c9e78
+  spokeLengthStr :: Main.Wheel -> [GHC.Types.Char]
+  {- Arity: 1,
+     Strictness: <L,1*U(U(U,U,U(U)),U(A,U(U),U(U),U(U)),1*U(1*U(U),1*U(U)),1*U)>,
+     Unfolding: (\ (wheel :: Main.Wheel) ->
+                 GHC.CString.unpackAppendCString#
+                   Main.spokeLengthStr3
+                   (case wheel of wild { Main.Wheel ds ds1 ds2 ds3 ->
+                    GHC.Base.++
+                      @ GHC.Types.Char
+                      ds3
+                      (GHC.CString.unpackAppendCString#
+                         Main.spokeLengthStr2
+                         (case Main.$wspokeLengths ds ds1 ds2 of ww { (#,#) ww1 ww2 ->
+                          case ww1 of ww3 { GHC.Types.D# ww4 ->
+                          GHC.Base.++
+                            @ GHC.Types.Char
+                            (GHC.Float.$w$sshowSignedFloat
+                               GHC.Float.$fShowDouble2
+                               GHC.Float.minExpt
+                               ww4
+                               (GHC.Types.[] @ GHC.Types.Char))
+                            (GHC.CString.unpackAppendCString#
+                               Main.spokeLengthStr1
+                               (case ww2 of ww5 { GHC.Types.D# ww6 ->
+                                GHC.Float.$w$sshowSignedFloat
+                                  GHC.Float.$fShowDouble2
+                                  GHC.Float.minExpt
+                                  ww6
+                                  (GHC.Types.[] @ GHC.Types.Char) })) } })) })) -}
+8f509799a1ffad680fbf5d7eba702fbe
+  spokeLengthStr1 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \right:"#) -}
+806318264e25770a1638453fd884b9c2
+  spokeLengthStr2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \ left:"#) -}
+e040ed05c9a428100f8db27e92ce1f49
+  spokeLengthStr3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \Wheel:"#) -}
+f31932c6665bf56f66c5c8a9099c67a5
   spokeLengths :: Main.Wheel -> (GHC.Types.Double, GHC.Types.Double)
   {- Arity: 1, HasNoCafRefs,
-     Strictness: <S,1*U(U(U,U,U(U)),U(A,U(U),U(U),U(U)),1*U(1*U(U),1*U(U)))>m,
+     Strictness: <S,1*U(U(U,U,U(U)),U(A,U(U),U(U),U(U)),1*U(1*U(U),1*U(U)),A)>m,
      Inline: [0],
      Unfolding: InlineRule (1, True, False)
                 (\ (w :: Main.Wheel) ->
-                 case w of ww { Main.Wheel ww1 ww2 ww3 ->
-                 case Main.$wspokeLengths ww1 ww2 ww3 of ww4 { (#,#) ww5 ww6 ->
-                 (ww5, ww6) } }) -}
+                 case w of ww { Main.Wheel ww1 ww2 ww3 ww4 ->
+                 case Main.$wspokeLengths ww1 ww2 ww3 of ww5 { (#,#) ww6 ww7 ->
+                 (ww6, ww7) } }) -}
 e22d8cf11bc1b5a325a2100e9ccaf7d1
   threeCrossed1 :: GHC.Types.Int
   {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 10#) -}
