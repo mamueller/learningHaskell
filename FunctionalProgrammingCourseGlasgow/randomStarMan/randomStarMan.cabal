@@ -1,0 +1,63 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 5384a73222e81b891d129d01ed2898222a6d2d53714ff3ed957fde29f5e6f900
+
+name:           randomStarMan
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/randomStarMan#readme>
+homepage:       https://github.com/githubuser/randomStarMan#readme
+bug-reports:    https://github.com/githubuser/randomStarMan/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/randomStarMan
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_randomStarMan
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable randomStarMan-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_randomStarMan
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , random
+    , randomStarMan
+  default-language: Haskell2010
+
+test-suite randomStarMan-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_randomStarMan
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , randomStarMan
+  default-language: Haskell2010
