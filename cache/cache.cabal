@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3d38480828144b7cd5bd648e733d4c2299143d557829f018c3c8194500e01b34
+-- hash: 4677c80da8227c9eaa4af2e3af479bf0471e4f353c8e5b48b38a86d6cfad4f48
 
 name:           cache
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       FacCache
       FibCache
+      FibMonad
       Lib
   other-modules:
       Paths_cache
@@ -48,6 +49,7 @@ executable cache-exe
   build-depends:
       base >=4.7 && <5
     , cache
+    , monad-memo
   default-language: Haskell2010
 
 test-suite cache-test
@@ -61,4 +63,20 @@ test-suite cache-test
   build-depends:
       base >=4.7 && <5
     , cache
+  default-language: Haskell2010
+
+test-suite factorial-test
+  type: exitcode-stdio-1.0
+  main-is: facTests.hs
+  other-modules:
+      Paths_cache
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+      ,tasty
+      ,tasty-hunit
+      , cache
+      , monad-memo
   default-language: Haskell2010

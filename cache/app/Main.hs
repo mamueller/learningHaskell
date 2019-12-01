@@ -2,7 +2,9 @@ module Main where
 
 --import Lib
 import FibCache
+import FibMonad
 import FacCache
+import Control.Monad.Memo
 
 
 c0 :: FibCache
@@ -26,12 +28,12 @@ main =
       fac_cache=snd fac_resAndCache
 
     in do 
-        putStrLn  ("lookup fib in c0 = " ++ show (lookup fibArgs c0))
+        putStrLn  ("lookup fib in c0 = " ++ show (Prelude.lookup fibArgs c0))
         putStrLn  ("computed fib = " ++ show (fib_result))
         putStrLn  ("cached fib = " ++ show (cached_fib_result))
         putStrLn  ("fib cache = " ++ show (fib_cache))
         
-        putStrLn  ("lookup fac in d0" ++ show (lookup n d0))
+        putStrLn  ("lookup fac in d0" ++ show (Prelude.lookup n d0))
         putStrLn  ("computed fac = " ++ show (fac m))
         putStrLn  ("cached fac = " ++ show (cached_fac_result))
         putStrLn  ("fac cache = " ++ show (fac_cache))
