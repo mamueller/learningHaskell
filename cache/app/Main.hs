@@ -2,7 +2,6 @@ module Main where
 
 --import Lib
 import FibCache
-import FibMonad
 import FacCache
 import Control.Monad.Memo
 

@@ -1,3 +1,8 @@
+module FixFuncs
+    ( fixFac
+      ,fixFib
+    ) where
+
 import Data.Function (fix)
 
 -- normal recursive fact
@@ -5,7 +10,7 @@ fact :: Int -> Int
 fact 0 = 1
 fact n = n * fact (n-1) 
 
--- Up to now 'fact' calls itself in the last line on the argumen (n-1)
+-- Up to now 'fact' calls itself in the last line on the argument (n-1)
 -- We now create a function g that
 -- accepts an argument 'rec' for the function to be called on (n-1)
 -- and returns a function 
