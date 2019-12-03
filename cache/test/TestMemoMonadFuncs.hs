@@ -8,7 +8,7 @@ import MemoMonadFuncs
 
 main :: IO ()
 main = do
-  defaultMain (testGroup "Testing the original versions of the factorial function and the function computing the n-th fibonachi number" [ fibonacci_2])
+  defaultMain (testGroup "Testing the original versions of the factorial function and the function computing the n-th fibonachi number" [ fibonacciM_2])
 
 --factorial :: TestTree
 --factorial = testCase "Testing fac"
@@ -22,7 +22,11 @@ main = do
 --fibonacci_1= testCase "Testing fibonacci"
 --  (assertEqual "fib 1 should say 1."  1 (fib  1))
 
-fibonacci_2:: TestTree
-fibonacci_2= testCase "Testing fibonacci"
-  (assertEqual "fib 2 should say 0+1."  1 (evalFibmId 2))
+--fibonacci_2:: TestTree
+--fibonacci_2= testCase "Testing fibonacci"
+--  (assertEqual "fib 2 should say 0+1."  1 (evalFibmId 2))
+
+fibonacciM_2:: TestTree
+fibonacciM_2= testCase "Testing fibonacci"
+  (assertEqual "fib 2 should say 0+1."  1 (evalFibm 2))
 
