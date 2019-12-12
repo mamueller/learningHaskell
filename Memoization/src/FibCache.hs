@@ -53,3 +53,8 @@ caching_fib x0 y0 n fc size= let
                                 Nothing  -> (new , (update fc (argTup,new) size))
                                 Just xs -> (xs,fc) 
 
+
+--listFib :: Integral a=>[a] -> a -> [a]
+--listFib [] 1 =  [0]
+--listFib [] 2 =  [1,0]
+--listFib [] n   = (head (listFib [] (n-1)) + head (listFib [] (n-2) )):xs
