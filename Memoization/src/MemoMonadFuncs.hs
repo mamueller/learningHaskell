@@ -31,6 +31,7 @@ fibm n = do
   f1 <- memo fibm (n-1)
   f2 <- memo fibm (n-2)
   return (f1+f2)
+ 
 
 --then, to evaluate it with default Data.Map based memoization cache
 --we use the following "eval*" function:

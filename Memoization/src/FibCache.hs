@@ -15,7 +15,7 @@ fib x0 y0 n = let l= fib x0 y0 (n-1)
                   x= head (tail rl)
                   in l ++[x+y]
 
-
+----------------------------------------------------------------------------
 -- now we handcraft a cached version 
 
 type FibCacheKey = (Int,Int,Int)
@@ -53,8 +53,18 @@ caching_fib x0 y0 n fc size= let
                                 Nothing  -> (new , (update fc (argTup,new) size))
                                 Just xs -> (xs,fc) 
 
+----------------------------------------------------------------------------
+-- as second handcrafted version that works only on a reversed list
+-- the arguments are
+--    a list of fibonachi numbers of length l (possibly 0 at the beginning) 
+--    an integer n, the desired length of the list
+-- the result is not the n-th fibonachi number but the list of the first n fibonachi numbers 
 
---listFib :: Integral a=>[a] -> a -> [a]
---listFib [] 1 =  [0]
---listFib [] 2 =  [1,0]
---listFib [] n   = (head (listFib [] (n-1)) + head (listFib [] (n-2) )):xs
+listFib :: [Int] -> Int -> [Int]
+listFib [] 1 =  [0]
+listFib [] 2 =  [1,0]
+listFib xs n  |n < (m + 1) = take n xs
+              |n ==(m + 1) = (head xs + head (tail xs)): xs
+              |n > (m + 1) = (head ys + head (tail ys)): ys
+              where  m =length xs                               
+                     ys = listFib xs (n-1) 
