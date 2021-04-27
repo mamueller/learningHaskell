@@ -1,0 +1,3 @@
+- remove duplication between the two lookUp functions
+- factor out the two markovChain functions
+- find out why in some cases (with non reproducible generators) the trajectories fail and make those cases reproducable by finding the generators that produce the numbers
