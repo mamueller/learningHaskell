@@ -13,7 +13,8 @@ module Lib
       ,ind_traj
       ,ind_traj_2
       ,ind_traj_reverse_2 
-      ,phi_maker
+      ,phiMaker
+      ,mbphiMaker
       ,phiTwo_maker
       ,lSum
       ,findIntervalFromLeft 
@@ -23,6 +24,7 @@ module Lib
       ,targetFrequencies
       ,targetProbs
       ,targetState
+      ,mbTargetState
       ,condJumpProbs 
       ,tupleCondJumpProbs 
       ,allTargetProbs
@@ -30,6 +32,7 @@ module Lib
       ,cAR1
       ,cARRec
       ,lookUp
+      ,tupleLookUp
       ,tupleList
     ) where
 import Graphics.Rendering.Chart.Easy
@@ -64,8 +67,8 @@ discretize x_min x_max nos = let
 --create a state transformer by cataloging all the possible successive values
 --of a given value (The state is here just represented as the index of a discretized
 --value
-phi_maker :: [State]->  StateTransformer 
-phi_maker 
+phiMaker :: [State]->  StateTransformer 
+phiMaker 
   recorded_state_ids
   = 
   let
@@ -84,6 +87,37 @@ phi_maker
   in 
     phi
 
+mbphiMaker :: [State]-> State -> StateTransformer 
+mbphiMaker 
+  recorded_state_ids
+  defaultState
+  = 
+  let
+    ss:: S.Set Int 
+    ss = (S.fromList recorded_state_ids) 
+
+    --for every encountered combination of (state,successor) count the number of occurenses
+    tps =allTargetProbs(S.toList ss) recorded_state_ids
+    --At the moment the 'random' numbers are known the trajectory becomes deterministic
+    
+    phi :: StateTransformer
+    phi 
+      s -- present state
+      rn --random number
+      =
+        let 
+          cjps = lookup s tps 
+          learned = (mbTargetState cjps rn) 
+        in 
+          if learned ==Nothing then
+            defaultState
+          else 
+            let 
+              Just x = learned
+            in
+              x
+  in 
+    phi
 --create a state transformer by cataloging all the possible successive values
 --of a given tuple of values 
 --(The present state here is  represented by two successive values)
@@ -134,22 +168,55 @@ tupleLookUp
        -- the probability of this state.
   stup  -- tuple(previous state, current state)
   = 
-  let 
-    pred ::(TwoState,[(State,Double)])->Bool
-    pred (t,tups) = t ==stup
-    
-    (_,tprobs) = head (filter pred atps)
-  in tprobs
+    (let 
+      pred ::(TwoState,[(State,Double)])->Bool
+      pred (t,tups) = t ==stup
+      hits = filter pred atps
+
+      res = if length hits == 0 
+        then []
+      else
+        let 
+          (_,tprobs) = head (hits)
+        in 
+          tprobs
+    in
+      res
+    )
+      
+mbTargetState:: (Maybe [(State,Double)]) -> Double -> (Maybe State) 
+mbTargetState 
+  mbtups -- list of tuples of the form (state, prob) 
+  rn   -- number between 0 and 1 supposedly generated 'randomly' 
+  = 
+    fmap 
+      (\tups -> 
+        let
+          states = map fst tups 
+          probs = map snd tups
+          i = findIntervalFromLeft (lSum probs) rn
+        in 
+          states !! i
+      )
+      mbtups
+
 
 targetState:: [(State,Double)] -> Double -> State 
 targetState 
   tups -- list of tuples of the form (state, prob) 
   rn   -- number between 0 and 1 supposedly generated 'randomly' 
-  = let
-      states = map fst tups 
-      probs = map snd tups
-      i = findIntervalFromLeft (lSum probs) rn
-    in states !! i
+  = 
+    if length tups ==0 
+      -- if we have never encountered this tuple before 
+      -- and consequnetly do not know where do go from here
+      -- we return a default state, which works a like a restart value 
+      then 0 
+    else
+      let
+        states = map fst tups 
+        probs = map snd tups
+        i = findIntervalFromLeft (lSum probs) rn
+      in states !! i
 
 ind_traj :: State -> StateTransformer -> [Double] -> [State] 
 ind_traj  
@@ -212,7 +279,7 @@ reproduced_points recorded_points nos generator =
     recorded_state_ids = [ (x2ind s) | s <- recorded_values ]
     ind_0 = head recorded_state_ids
     nt = length ts
-    phi = phi_maker recorded_state_ids 
+    phi = phiMaker recorded_state_ids 
     rnums = take nt ( randomRs (0.0,1.0) generator ::[Double])
     indList = (ind_traj ind_0 phi rnums)
   in 

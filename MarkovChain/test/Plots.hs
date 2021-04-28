@@ -93,7 +93,7 @@ plotTrajectoryTests = let
   x_max = 1.0
   (x2ind,ind2x) = (discretize x_min x_max nos) 
 
-  nt = 7
+  nt = 200
   ts :: [Double] 
   ts =[1..fromIntegral nt]
 
@@ -117,7 +117,6 @@ plotTrajectoryTests = let
     [ 
       testCase "svg " (
         let 
-          fn ="test.svg"
           generator = mkStdGen 12
         in
             --generator <- getStdGen
@@ -131,4 +130,25 @@ plotTrajectoryTests = let
                 ,("second order mc",(reproduced_points_2 recorded_points nos generator))
               ]
         )
+      ,
+            --generator <- getStdGen
+      testCase 
+          "find wrong probs" 
+          (
+            mapM_ 
+              (\n ->
+                let 
+                  fn ="errors" ++ (show n) ++".svg"
+                  generator = mkStdGen n
+                  nos=100
+                in 
+                  do
+                    print fn
+                    toFile def fn $ do
+                      layout_title .= "Amplitude Modulation"
+                      setColors [opaque blue, opaque red]
+                      plot (line "am" [(reproduced_points_2 recorded_points nos generator)])
+              )
+              [1..10]
+          )
     ]

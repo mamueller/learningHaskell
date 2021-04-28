@@ -14,138 +14,7 @@ import Graphics.Rendering.Chart.Backend.Diagrams(toFile)
 
 main :: IO ()
 main = do 
-  defaultMain (testGroup "all" [ helperTests, trajectoryTests])
-
-
-
-
-
-helperTests = testGroup 
-  "helperTests" 
-  [
-    testCase "lSum" (
-      assertEqual 
-        "" 
-        [0.1,0.30000000000000004,0.6000000000000001,1.0]
-        (lSum [0.1,0.2,0.3,0.4])
-    )
-    ,testCase "find interval" (
-      do
-        assertEqual
-          "" 
-          0
-          (findIntervalFromLeft [0.1,0.3,0.6,1.0]  0.05) 
-        assertEqual
-          "" 
-          1
-          (findIntervalFromLeft [0.1,0.3,0.6,1.0]  0.15) 
-        assertEqual
-          "" 
-          3
-          (findIntervalFromLeft [0.1,0.3,0.6,1.0]  0.9) 
-    )
-    ,testCase "Successors of 1" (
-      assertEqual 
-        "" 
-        [2,2]
-        (findSuccessors 1 [1,2,3,2,1,2,3])
-    )
-    ,testCase "Successors of 2" (
-      assertEqual 
-        "" 
-        [3,1,3]
-        (findSuccessors 2 [1,2,3,2,1,2,3])
-    )
-    ,testCase "targetLists" (
-      assertEqual 
-        "" 
-        [
-          (1,[2,2])
-          ,(2,[3,1,3])
-          ,(3,[2])
-        ]
-        (targetLists (fromList [1,2,3]) [1,2,3,2,1,2,3])
-    )
-    ,testCase "cAR1" (
-      assertEqual 
-        "count the 3s and return a list without the 3s" 
-        (4,[2,2,1])
-        (cAR1 3 ([3,1,3,2,3,2,3]))
-    )
-    ,testCase "cARRec" (
-      assertEqual 
-        "count all states and return an empty list " 
-        ([(1,1),(2,2),(3,4)],[])
-        (cARRec ([],[3,1,3,2,3,2,3]))
-    )
-    ,testCase "targetFrequencies" (
-      assertEqual 
-        "count all states" 
-        [(1,1),(2,2),(3,4)]
-        (targetFrequencies [3,1,3,2,3,2,3])
-    )
-    ,testCase "targetProbs" (
-      assertEqual 
-        "compute Probabilities" 
-        [(1,1.0/7.0),(2,2.0/7.0),(3,4.0/7.0)]
-        (targetProbs [(1,1),(2,2),(3,4)])
-    )
-    ,testCase "condJumpProbs" (
-      assertEqual 
-        "compute Probabilities the successors of in the given trajectory are [3,1,3]" 
-        (2,[(1,1.0/3.0),(3,2.0/3.0)])
-        (condJumpProbs [1,2,3,2,1,2,3] 2)
-    )
-    ,testCase "allTargetProbs" (
-      assertEqual 
-        "compute all Probabilities " 
-        [
-          (1,[(2,1.0)])
-          ,(2,[(1,1.0/3.0),(3,2.0/3.0)])
-          ,(3,[(2,1.0)])
-        ]
-        (allTargetProbs [1,2,3] [1,2,3,2,1,2,3] )
-    )
-    ,testCase "determine the target state from the present state and a number between 0 and 1"  (
-      assertEqual 
-        "since the prob for 2 is 1.0 the result has to be 2 regardless of the 'random' number 0.5" 
-        2
-        (targetState [(2,1.0)] 0.5)
-    )
-    ,testCase "determine the target state from the present state and a number between 0 and 1"  (
-      assertEqual 
-        "since the prob for 1 is 1/6 and 1/6 for 2 2/3 for 3 the result has to be 1 for 'random number 0.1<1/6"
-        1
-        (targetState [(1,1.0/6.0),(2,1.0/6),(3,2.0/3.0)] 0.1)
-    )
-    ,testCase "determine the target state from the present state and a number between 0 and 1"  (
-      assertEqual 
-        "since the prob for 1 is 1/6 and 1/6 for 2 2/3 for 3 the result has to be 2 for 'random number 1/6<0.2<(1/6+1/6)"
-        2
-        (targetState [(1,1.0/6.0),(2,1.0/6),(3,2.0/3.0)] 0.2)
-    )
-    ,testCase "determine the target state from the present state and a number between 0 and 1"  (
-      assertEqual 
-        "since the prob for 1 is 1/6 and 1/6 for 2 2/3 for 3 the result has to be 3 for 'random number 1/6+1/6 <0.4"
-        3
-        (targetState [(1,1.0/6.0),(2,1.0/6),(3,2.0/3.0)] 0.4)
-    )
-    ,testCase "lookUp" (
-      assertEqual 
-        "compute Probabilities " 
-       [(1,1.0/3.0),(3,2.0/3.0)]
-       (
-          lookUp  
-            [
-              (1,[(2,1.0)])
-              ,(2,[(1,1.0/3.0),(3,2.0/3.0)])
-              ,(3,[(2,1.0)])
-            ]
-            2
-       )
-    )
-  ]
-
+  defaultMain (testGroup "all" [phiMakerTests,  trajectoryTests])
 trajectoryTests = let
   nos=5
   x_min = (-1.0)
@@ -177,3 +46,58 @@ trajectoryTests = let
       testCase "index trajectory" (
         assertEqual "" ([0,1,2,3,4,5,5])(ind_traj 0 phi rnums) )
     ]
+
+phiMakerTests = testGroup "build completely predictable phi from recorded states" [mbphiMakerTestsOnSingleStates, mbphiMakerTestsOnTrajectories] 
+
+mbphiMakerTestsOnSingleStates= testGroup 
+  "learn phi and test it on "
+  (
+  let
+    rn=0.5
+    recorded=[0,1,2,3,4]
+    defaultState=0
+    phi = (mbphiMaker recorded defaultState)
+    -- the random rumbers rn should not be
+    -- relavent, since for the following test records phi is 
+    -- completely deterministic 
+    -- (There are never two or more target states)
+  in
+    [
+      testCase "learn phi" (
+          assertEqual "" 2 (phi 1 rn) 
+      )
+      ,testCase "learn phi" (
+          assertEqual "" 3 (phi 2 rn) 
+      )
+      ,testCase "learn phi" (
+          assertEqual "" 4 (phi 3 rn) 
+      )
+      ,testCase "learn phi" (
+          assertEqual "" defaultState (phi 4 rn) 
+      )
+    ]
+  )
+
+mbphiMakerTestsOnTrajectories= testGroup 
+  "Try to learn complete index trajectories"
+  (
+  let 
+      recorded=[0,1,2,3,4,5,6]
+      nt=length(recorded)
+      --we create a record that would be totally predictable by a first order markov chain
+      defaultState=0
+      phi = mbphiMaker recorded defaultState
+      --we dont need random numbers here since the successor can be computed for 
+      --every state except 6
+      generator = mkStdGen 12
+      rnums = take nt ( randomRs (0.0,1.0) generator ::[Double])
+  in
+    [
+      testCase "index trajectory learned" (
+          assertEqual "" recorded (ind_traj 0 phi rnums) 
+      )
+      ,testCase "index trajectory learned" (
+          assertEqual "" [1,2,3,4,5,6,defaultState] (ind_traj 1 phi rnums) 
+      )
+    ]
+  )

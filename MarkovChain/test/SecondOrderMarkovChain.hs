@@ -42,6 +42,62 @@ twoHelperTests = testGroup
         ]
         (allTupleTargetProbs [(1,2),(2,3),(3,2),(2,1)] [1,2,3,2,1,2,3] )
     )
+    ,testCase "successful tupleLookUp" (
+      assertEqual 
+        "known base state" 
+        [(2,1.0)]
+        (tupleLookUp 
+          [
+            ((1,2),[(3,1.0)])
+            ,((2,3),[(2,1.0)])
+            ,((3,2),[(1,1.0)])
+            ,((2,1),[(2,1.0)])
+          ]
+          (2,1)
+        )
+    )
+    ,testCase "unsuccessful tupleLookUp" (
+      assertEqual 
+        "unknown base state" 
+        []
+        (tupleLookUp 
+          [
+            ((1,2),[(3,1.0)])
+            ,((2,3),[(2,1.0)])
+            ,((3,2),[(1,1.0)])
+            ,((2,1),[(2,1.0)])
+          ]
+          (1,1) -- not in the list
+        )
+    )
+    ,testCase "successful lookup" (
+      assertEqual 
+        "known base state" 
+        (Just [(2,1.0)])
+        (lookup 
+          (2,1)
+          [
+            ((1,2),[(3,1.0)])
+            ,((2,3),[(2,1.0)])
+            ,((3,2),[(1,1.0)])
+            ,((2,1),[(2,1.0)])
+          ]
+        )
+    )
+    ,testCase "un successful lookup" (
+      assertEqual 
+        "known base state" 
+        Nothing
+        (lookup 
+          (1,1)-- not in the list
+          [
+            ((1,2),[(3,1.0)])
+            ,((2,3),[(2,1.0)])
+            ,((3,2),[(1,1.0)])
+            ,((2,1),[(2,1.0)])
+          ]
+        )
+    )
     ,testCase "tupleCondJumpProbs" (
       assertEqual 
         "compute Probabilities of successors of a tuple" 
@@ -94,6 +150,8 @@ phiTwo_makerTestsOnTuples = testGroup
   (
   let
     rn=0.5
+    recorded=[0,1,2,3,4,5,6]
+    phi = phiTwo_maker recorded
     -- the random rumbers rn should not be
     -- relavent, since for the following test records phi is 
     -- completely deterministic 
@@ -101,24 +159,12 @@ phiTwo_makerTestsOnTuples = testGroup
   in
     [
       testCase "learn phi" (
-        let
-          recorded=[0,1,2,3,4,5,6]
-          phi = phiTwo_maker recorded
-        in 
           assertEqual "" 2 (phi (0,1) rn) 
       )
       ,testCase "learn phi" (
-        let
-          recorded=[0,1,2,3,4,5,6]
-          phi = phiTwo_maker recorded
-        in 
           assertEqual "" 3 (phi (1,2) rn) 
       )
       ,testCase "learn phi" (
-        let
-          recorded=[0,1,2,3,4,5,6]
-          phi = phiTwo_maker recorded
-        in 
           assertEqual "" 4 (phi (2,3) rn) 
       )
     ]
