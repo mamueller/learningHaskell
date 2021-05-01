@@ -88,35 +88,27 @@ helperTests = testGroup
         [(1,1.0/7.0),(2,2.0/7.0),(3,4.0/7.0)]
         (targetProbs [(1,1),(2,2),(3,4)])
     )
-    ,testCase "condJumpProbs" (
+    ,testCase "mbCondJumpProbs" (
       assertEqual 
         "compute Probabilities the successors of in the given trajectory are [3,1,3]" 
-        (2,[(1,1.0/3.0),(3,2.0/3.0)])
-        (condJumpProbs [1,2,3,2,1,2,3] 2)
+        (2, Just [(1,1.0/3.0),(3,2.0/3.0)])
+        (mbCondJumpProbs [1,2,3,2,1,2,3] 2)
+    )
+    ,testCase "mbCondJumpProbs" (
+      assertEqual 
+        "compute Probabilities the successors of in the given trajectory are [3,1,3]" 
+        (4,Nothing)
+        (mbCondJumpProbs [1,2,3,2,1,2,3] 4)
     )
     ,testCase "allTargetProbs" (
       assertEqual 
-        "compute all Probabilities " 
+        "compute all Probabilities note that there is no entry for probabilities under the condition that we are in state 4 because it has no successors in the recorded indexlist" 
         [
           (1,[(2,1.0)])
           ,(2,[(1,1.0/3.0),(3,2.0/3.0)])
           ,(3,[(2,1.0)])
         ]
-        (allTargetProbs [1,2,3] [1,2,3,2,1,2,3] )
-    )
-    ,testCase "lookUp" (
-      assertEqual 
-        "compute Probabilities " 
-       [(1,1.0/3.0),(3,2.0/3.0)]
-       (
-          lookUp  
-            [
-              (1,[(2,1.0)])
-              ,(2,[(1,1.0/3.0),(3,2.0/3.0)])
-              ,(3,[(2,1.0)])
-            ]
-            2
-       )
+        (allTargetProbs [4,3,2,1] [1,2,3,2,1,2,3] )
     )
     ]
 

@@ -32,9 +32,13 @@ main =
     rn=0.5
     recorded=[0,1,2,3,4]
     defaultState=0
-    phi = (mbphiMaker recorded defaultState)
+    ss = (S.fromList recorded) 
+    tps =allTargetProbs(S.toList ss) recorded
+    phi = (phiMaker recorded defaultState)
   in
-    print (phi 4 rn)
+    --print ss
+    print tps
+    --print (phi 4 rn)
     
 --  let  
 --    p= toProb(0.9)

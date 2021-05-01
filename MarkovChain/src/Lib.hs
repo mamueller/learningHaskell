@@ -14,7 +14,6 @@ module Lib
       ,ind_traj_2
       ,ind_traj_reverse_2 
       ,phiMaker
-      ,mbphiMaker
       ,phiTwo_maker
       ,lSum
       ,findIntervalFromLeft 
@@ -25,13 +24,12 @@ module Lib
       ,targetProbs
       ,targetState
       ,mbTargetState
-      ,condJumpProbs 
+      ,mbCondJumpProbs 
       ,tupleCondJumpProbs 
       ,allTargetProbs
       ,allTupleTargetProbs
       ,cAR1
       ,cARRec
-      ,lookUp
       ,tupleLookUp
       ,tupleList
     ) where
@@ -67,28 +65,8 @@ discretize x_min x_max nos = let
 --create a state transformer by cataloging all the possible successive values
 --of a given value (The state is here just represented as the index of a discretized
 --value
-phiMaker :: [State]->  StateTransformer 
+phiMaker :: [State] -> State ->  StateTransformer 
 phiMaker 
-  recorded_state_ids
-  = 
-  let
-    ss:: S.Set Int 
-    ss = (S.fromList recorded_state_ids) 
-
-    --for every encountered combination of (state,successor) count the number of occurenses
-    tps =allTargetProbs(S.toList ss) recorded_state_ids
-    --At the moment the 'random' numbers are known the trajectory becomes deterministic
-    
-    phi :: StateTransformer
-    phi 
-      s -- present state
-      rn --random number
-      =let cjps = lookUp tps s in (targetState cjps rn) 
-  in 
-    phi
-
-mbphiMaker :: [State]-> State -> StateTransformer 
-mbphiMaker 
   recorded_state_ids
   defaultState
   = 
@@ -104,20 +82,20 @@ mbphiMaker
     phi 
       s -- present state
       rn --random number
+      -- =let cjps = lookUp tps s in (targetState cjps rn) 
       =
         let 
-          cjps = lookup s tps 
-          learned = (mbTargetState cjps rn) 
+          mbcjps = lookup s tps 
+          mbts = mbTargetState mbcjps rn
         in 
-          if learned ==Nothing then
+          if mbts == Nothing then
             defaultState
-          else 
-            let 
-              Just x = learned
-            in
-              x
+          else
+            let Just ts = mbts
+            in  ts
   in 
     phi
+
 --create a state transformer by cataloging all the possible successive values
 --of a given tuple of values 
 --(The present state here is  represented by two successive values)
@@ -147,19 +125,19 @@ phiTwo_maker
     phi
     
 
-lookUp :: [(State,[(State,Double)])] -> State ->[(State,Double)]
-lookUp 
-  atps -- list of all tuples of (presentState,[(s1,Prob(s1),...,(sn,Prob(sn))])
-       -- where s1..sn are the possible successor states of s and Prob(sn) is
-       -- the probability of this state.
-  s    -- present state
-  = 
-  let 
-    pred ::(State,[(State,Double)])->Bool
-    pred (st,tups) = st ==s 
-    
-    (_,tprobs) = head (filter pred atps)
-  in tprobs
+--lookUp :: [(State,[(State,Double)])] -> State ->[(State,Double)]
+--lookUp 
+--  atps -- list of all tuples of (presentState,[(s1,Prob(s1),...,(sn,Prob(sn))])
+--       -- where s1..sn are the possible successor states of s and Prob(sn) is
+--       -- the probability of this state.
+--  s    -- present state
+--  = 
+--  let 
+--    pred ::(State,[(State,Double)])->Bool
+--    pred (st,tups) = st ==s 
+--    
+--    (_,tprobs) = head (filter pred atps)
+--  in tprobs
 
 tupleLookUp :: [(TwoState,[(State,Double)])] -> TwoState ->[(State,Double)]
 tupleLookUp 
@@ -186,19 +164,19 @@ tupleLookUp
       
 mbTargetState:: (Maybe [(State,Double)]) -> Double -> (Maybe State) 
 mbTargetState 
-  mbtups -- list of tuples of the form (state, prob) 
+  mbtups -- list of tuples of the form Maybe[(s1, prob1),] 
   rn   -- number between 0 and 1 supposedly generated 'randomly' 
   = 
-    fmap 
+    mbtups >>= 
       (\tups -> 
-        let
-          states = map fst tups 
-          probs = map snd tups
-          i = findIntervalFromLeft (lSum probs) rn
-        in 
-          states !! i
+          let
+            states = map fst tups 
+            probs = map snd tups
+            i = findIntervalFromLeft (lSum probs) rn
+          in 
+            Just (states !! i)
       )
-      mbtups
+      
 
 
 targetState:: [(State,Double)] -> Double -> State 
@@ -279,7 +257,8 @@ reproduced_points recorded_points nos generator =
     recorded_state_ids = [ (x2ind s) | s <- recorded_values ]
     ind_0 = head recorded_state_ids
     nt = length ts
-    phi = phiMaker recorded_state_ids 
+    defaultState = 0 
+    phi = phiMaker recorded_state_ids defaultState 
     rnums = take nt ( randomRs (0.0,1.0) generator ::[Double])
     indList = (ind_traj ind_0 phi rnums)
   in 
@@ -414,16 +393,36 @@ targetProbs tups=
   in  map (\(s,f) -> (s,(fromIntegral f)/(fromIntegral fsum))) tups  
 
 
+
 --compute the jump probs for a given State from a given trajectory
-condJumpProbs ::[State] -> State -> (State,[(State,Double)])
-condJumpProbs
+mbCondJumpProbs ::[State] -> State ->  (State,Maybe[(State,Double)])
+mbCondJumpProbs
   rs --recorded states
   s --present state
   = let 
       succs = findSuccessors s rs
       tfs = targetFrequencies succs
+      l= if succs ==[] then 
+          Nothing
+        else
+          Just (targetProbs tfs)
     in 
-      (s,targetProbs tfs)
+       ( s,l)
+
+--compute the jump probs for a given State from a given trajectory
+mbCondJumpProbs2 ::[State] -> State ->  (Maybe[(State,Double)])
+mbCondJumpProbs2
+  rs --recorded states
+  s --present state
+  = let 
+      succs = findSuccessors s rs
+      tfs = targetFrequencies succs
+      l= if succs ==[] then 
+          Nothing
+        else
+          Just (targetProbs tfs)
+    in 
+       l
 
 --compute the jump probs for a given TwoState from a given trajectory
 tupleCondJumpProbs ::[State] -> TwoState -> (TwoState,[(State,Double)])
@@ -437,14 +436,27 @@ tupleCondJumpProbs
       (tup,targetProbs tfs)
 
 
---the data structure of all conditional jump probabilities for all states
---At the moment it is a list but a binary search tree would be 
---more efficient for lookups
+
+----the data structure of all conditional jump probabilities for all states
+----At the moment it is a list but a binary search tree would be 
+----more efficient for lookups
 allTargetProbs::[State] -> [State] -> [(State, [(State,Double)])]
 allTargetProbs
   ss --states
   rs --recorded states
-  = map (condJumpProbs rs) ss
+  = foldl
+      (\ acc s -> 
+        let mbtl = mbCondJumpProbs2 rs s
+        in
+          if mbtl==Nothing 
+            then acc
+          else 
+            let 
+              Just tl = mbtl
+              in (s,tl):acc
+      )
+      []
+      ss
 
 --the data structure of all conditional jump probabilities for all states
 --At the moment it is a list but a binary search tree would be 

@@ -14,7 +14,8 @@ import Graphics.Rendering.Chart.Backend.Diagrams(toFile)
 
 main :: IO ()
 main = do 
-  defaultMain (testGroup "all" [phiMakerTests,  trajectoryTests])
+  defaultMain (testGroup "all" [ phiMakerTests,  trajectoryTests])
+
 trajectoryTests = let
   nos=5
   x_min = (-1.0)
@@ -47,16 +48,17 @@ trajectoryTests = let
         assertEqual "" ([0,1,2,3,4,5,5])(ind_traj 0 phi rnums) )
     ]
 
-phiMakerTests = testGroup "build completely predictable phi from recorded states" [mbphiMakerTestsOnSingleStates, mbphiMakerTestsOnTrajectories] 
 
-mbphiMakerTestsOnSingleStates= testGroup 
+
+phiMakerTests = testGroup "build completely predictable phi from recorded states" [phiMakerTestsOnSingleStates, phiMakerTestsOnTrajectories] 
+phiMakerTestsOnSingleStates= testGroup 
   "learn phi and test it on "
   (
   let
     rn=0.5
     recorded=[0,1,2,3,4]
     defaultState=0
-    phi = (mbphiMaker recorded defaultState)
+    phi = (phiMaker recorded defaultState)
     -- the random rumbers rn should not be
     -- relavent, since for the following test records phi is 
     -- completely deterministic 
@@ -78,7 +80,7 @@ mbphiMakerTestsOnSingleStates= testGroup
     ]
   )
 
-mbphiMakerTestsOnTrajectories= testGroup 
+phiMakerTestsOnTrajectories= testGroup 
   "Try to learn complete index trajectories"
   (
   let 
@@ -86,7 +88,7 @@ mbphiMakerTestsOnTrajectories= testGroup
       nt=length(recorded)
       --we create a record that would be totally predictable by a first order markov chain
       defaultState=0
-      phi = mbphiMaker recorded defaultState
+      phi = phiMaker recorded defaultState
       --we dont need random numbers here since the successor can be computed for 
       --every state except 6
       generator = mkStdGen 12
