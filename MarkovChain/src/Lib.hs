@@ -32,6 +32,9 @@ module Lib
       ,cARRec
       ,tupleLookUp
       ,tupleList
+      ,nList
+      ,recList
+      ,oneList
     ) where
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Diagrams(toFile)
@@ -473,3 +476,32 @@ tupleList:: [a] -> [(a,a)]
 tupleList ys = let
   x:xs=ys
   in (zip ys xs)
+
+nList:: [a] -> Int -> [[a]]
+nList ys o = 
+  let 
+    (_,ls) = ( recList (ys,[]) o )
+  in 
+    reverse ls
+
+recList:: ([a],[[a]])-> Int -> ([a],[[a]])
+recList (l,ls) o
+  |((length l) <=o) = oneList (l,ls) o
+  | otherwise = 
+    let
+      tup =(oneList (l,ls) o)
+    in 
+      (recList tup o)
+    
+
+oneList:: ([a],[[a]]) -> Int -> ([a],[[a]])
+oneList (l,ls) o 
+  |((length l) < o) = (l,ls)
+  |((length l) >= o) = 
+    let 
+      x:rest = l
+      part = take o l
+    in
+      (rest,part:ls)
+
+    
