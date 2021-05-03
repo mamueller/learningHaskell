@@ -29,6 +29,7 @@ library
   exposed-modules:
       Lib
       ,Probability
+      ,NOrder
   other-modules:
       Paths_MarkovChain
   hs-source-dirs:

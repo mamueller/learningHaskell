@@ -1,7 +1,7 @@
 
 module Main where
 
-import Lib
+import NOrder
 import Test.Tasty
 import Test.Tasty.HUnit
 import System.Random
