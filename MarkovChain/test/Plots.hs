@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import General
+import NOrder
 import Test.Tasty
 import Test.Tasty.HUnit
 import System.Random
@@ -60,9 +61,12 @@ discretizeTests = let
               
               discretized_points = [(t,ind2x (x2ind v))| (t,v)<- recorded_points]::[(Double,Double)]
 
-              phi = phiTwo_maker recorded_indices
+              phi = listPhiMaker
+                recorded_indices
+                2 --order
+                0 --default state to return if no successors are known
               s0:s1:rest=recorded_indices 
-              reproduced_indices = (ind_traj_2 (s0,s1) phi rnums)
+              reproduced_indices = (listIndTraj [s0,s1] phi rnums)
             in
               do
                 toFile def "signalVsDicretisation.svg" $ do
@@ -88,17 +92,17 @@ discretizeTests = let
     ]
 
 plotTrajectoryTests = let
-  nos=5
+  nos=100
   x_min = (-1.0)
   x_max = 1.0
   (x2ind,ind2x) = (discretize x_min x_max nos) 
 
-  nt = 200
+  nt = 400
   ts :: [Double] 
   ts =[1..fromIntegral nt]
 
   recorded_points ::  [(Double,Double)]
-  recorded_points = [ (t,(sin (t*3.14159/fromIntegral nt)  )) | t<- ts]
+  recorded_points = [ (t,(sin (t*3.14159/100)  )) | t<- ts]
 
   recorded_state_ids ::  [Int]
   recorded_state_ids = [ (x2ind s) | (s,_) <- recorded_points]
@@ -122,33 +126,20 @@ plotTrajectoryTests = let
             --generator <- getStdGen
           toFile def "alltrajectories.svg" $ do
             layout_title .= "original vs first order vs second order"
-            setColors [opaque blue, opaque red, opaque green]
+            setColors [
+              opaque blue
+              ,opaque red
+              ,opaque green
+              ,opaque yellow
+              ,opaque brown
+              ]
             mapM_ (\ (label,points) -> plot(line label [points])) 
               [
                 ("recorded",recorded_points) 
-                ,("first order mc",(reproduced_points recorded_points nos generator)) 
-                ,("second order mc",(reproduced_points_2 recorded_points nos generator))
+                ,("first order mc",(listReproducedPoints recorded_points 1 nos generator)) 
+                ,("second order mc",(listReproducedPoints recorded_points 2 nos generator))
+                ,("fourth order mc",(listReproducedPoints recorded_points 4 nos generator))
+                ,("eightth order mc",(listReproducedPoints recorded_points 8 nos generator))
               ]
         )
-      ,
-            --generator <- getStdGen
-      testCase 
-          "find wrong probs" 
-          (
-            mapM_ 
-              (\n ->
-                let 
-                  fn ="errors" ++ (show n) ++".svg"
-                  generator = mkStdGen n
-                  nos=100
-                in 
-                  do
-                    print fn
-                    toFile def fn $ do
-                      layout_title .= "Amplitude Modulation"
-                      setColors [opaque blue, opaque red]
-                      plot (line "am" [(reproduced_points_2 recorded_points nos generator)])
-              )
-              [1..10]
-          )
     ]

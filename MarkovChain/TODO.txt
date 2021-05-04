@@ -1,2 +1,1 @@
-- remove duplication between the two lookUp functions
-- factor out the two markovChain functions
+build in outlier detection based on expected value
