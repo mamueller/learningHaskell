@@ -27,6 +27,7 @@ nHelperTests = testGroup
     nlistTests
     ,listSuccessorTests
     ,mbListCondJumpProbTests 
+    ,mbSimplifiedListCondJumpProbTests 
   ]
 
 nlistTests=testGroup
@@ -235,6 +236,32 @@ mbListCondJumpProbTests=testGroup
     )
   ]
 
+mbSimplifiedListCondJumpProbTests=testGroup
+  "mbSimplifiedListCondJumpProbTests"
+  [
+    testCase "mbListCondJumpProbs" (
+      assertEqual 
+        "compute Probabilities of successors of a list" 
+        --(Just [(2,0.75),(10,0.25)]) 10 is the outlier because it has a prob of 0.25 <0.3
+        (Just [(2,1.0)])
+        (mbSimplifiedListCondJumpProbs [1,2,1,2,1,2,1,10] [1] 0.3)
+    )
+    ,
+    testCase "mbSimplifiedListCondJumpProbs" (
+      assertEqual 
+        "compute Probabilities of successors of a list" 
+        (Just [(3,0.5),(2,0.5)])
+        (mbSimplifiedListCondJumpProbs [1,2,3,2,1,2,2] [1,2] 0.1)
+    )
+    ,
+    testCase "mbSimplifiedListCondJumpProbs" (
+      assertEqual 
+        "compute Probabilities of successors of a list" 
+        (Just [(2,1)])
+        (mbSimplifiedListCondJumpProbs [1,2,3,2,1,2,2] [1,2,3] 0.1)
+    )
+  ]
+
 listIndTrajReverseTests= testGroup 
   "test trajectories of n order markov chains with completely predictable state transition operators"
   (
@@ -361,4 +388,74 @@ listPhiMakerTests =
                 )
             ]
           )
+      ,
+      testGroup 
+        "oulier detection"
+        (
+          let generator = mkStdGen 12
+          in
+            [
+              testCase
+                "curtail jump probs"
+                (
+                  assertEqual 
+                    "check if the states (1 and 4) with lower probability than threshold  have been removed"
+                    (Just [(3,0.5),(2,0.5)])
+                    (
+                      (Just [(3,0.3),(2,0.3),(1,0.1),(4,0.1) ]) >>= (curtail 0.1) 
+                    )
+                )
+              ,testCase
+                "curtail jump probs leaving nothing"
+                (
+                  assertEqual 
+                    "the target states are all less probable than the threshold that they are all removed"
+                    Nothing
+                    (
+                      (Just [(3,0.3),(2,0.3),(1,0.1),(4,0.1) ]) >>= (curtail 0.3) 
+                    )
+                )
+              ,testCase 
+                "index trajectory learned" 
+                (
+                  let
+                    sequence=[0,1,2,3,2,1,0,-1,-2,-3,-2,-1]
+                    synthetic = foldl (\acc el -> el++acc) [] (replicate 30 sequence)
+                    outliers =[(2,10),(3,-4)] --[(index,value),..]
+                    f::Int->Int --f smuggels in the outliers at the appointed position
+                    f ind =
+                      let 
+                        lu = lookup ind outliers
+                      in 
+                        if (lu == Nothing) then
+                          (synthetic !! ind) 
+                        else
+                          let 
+                            (Just val) = lu
+                          in
+                            val
+                    
+                    recorded = [(f ind)| ind <- [0..((length synthetic) -1)]]
+                        
+                    order=2
+                    nt=length(recorded)-order
+                    rnums = take nt ( randomRs (0.0,1.0) generator ::[Double])
+                    -- we will only consider conditional jump probabilities that are bigger than threshold
+                    -- discard the smaller ones and rescale the rest to sum up to one
+                    threshold=0.1 
+                    defaultState=0
+                    phi = simplifiedListPhiMaker 
+                      recorded
+                      order
+                      threshold
+                      defaultState
+                  
+                  in 
+                    do
+                      --print synthetic
+                      --print recorded
+                      (assertEqual "" synthetic( listIndTraj [0,1] phi rnums)) 
+                 )
+            ]
+        )
     ]

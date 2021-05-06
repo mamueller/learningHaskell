@@ -1,1 +1,3 @@
-build in outlier detection based on expected value
+- build in outlier detection based on expected value
+- rewrite the functions that use probabilities to use the new type
+  (instead of Double) to prevent values p > 1

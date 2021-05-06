@@ -17,6 +17,7 @@ module General
       ,mbTargetState
       ,lSum
       ,findIntervalFromLeft 
+      ,curtail 
     ) where
 -- In the most simple case a discrete state is represented by an Integer 
 type State = Int 
@@ -130,3 +131,16 @@ discretize x_min x_max nos = let
   in (x2ind,ind2x) 
 
 
+curtail :: Double -> [(Int, Double)]  -> Maybe[(Int, Double)] 
+curtail threshold tups =
+  let
+    remaining =filter (\(state,prob) -> prob > threshold ) tups 
+  in 
+    if remaining == [] then
+      Nothing
+    else
+      let 
+        p_sum = foldl (\acc (s,prob) -> acc+prob) 0 remaining
+      in 
+        Just (map (\(state,prob) ->(state,prob/p_sum)) remaining)
+        

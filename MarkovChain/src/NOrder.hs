@@ -6,10 +6,13 @@ module NOrder
       ,recSuccessors
       ,listSuccessors
       ,allListTargetProbs
+      ,simplifiedAllListTargetProbs
       ,mbListCondJumpProbs 
+      ,mbSimplifiedListCondJumpProbs 
       ,listIndTrajReverse 
       ,listIndTraj
       ,listPhiMaker
+      ,simplifiedListPhiMaker
       ,listReproducedPoints
     ) where
 import qualified Data.Set as S -- (fromList,Set,toList)
@@ -99,7 +102,7 @@ allListTargetProbs
 
 
 --compute the jump probs for a given State from a given trajectory
-mbListCondJumpProbs ::[State] -> [State] ->  (Maybe[(State,Double)])
+mbListCondJumpProbs ::[State] -> ListState ->  (Maybe[(State,Double)])
 mbListCondJumpProbs
   rs --recorded states
   s --present state
@@ -113,7 +116,43 @@ mbListCondJumpProbs
     in 
        l
 
-        
+--the data structure of all conditional jump probabilities for all states
+--At the moment it is a associative list but a binary search tree would be 
+--more efficient for lookups
+simplifiedAllListTargetProbs::[ListState] -> [State] -> Double -> [([State], [(State,Double)])]
+simplifiedAllListTargetProbs
+  ss --states 
+  rs --recorded states
+  threshold --minimal probability to be considered
+  = foldl
+      (\ acc s -> 
+        let mbtl = mbSimplifiedListCondJumpProbs rs s threshold
+        in
+          if mbtl==Nothing 
+            then acc
+          else 
+            let 
+              Just tl = mbtl
+              in (s,tl):acc
+      )
+      []
+      ss
+
+--compute the jump probs for a given State from a given trajectory
+--remove the target states
+--
+mbSimplifiedListCondJumpProbs ::[State] -> ListState -> Double ->  (Maybe[(State,Double)])
+mbSimplifiedListCondJumpProbs
+  rs --recorded states
+  s --present state
+  threshold --minimal probability to be considered
+  = 
+    let
+      mb = mbListCondJumpProbs rs s
+    in 
+      mb >>= (curtail threshold)
+
+
 --Starting with a listState (lenght n for a N-th order chain) we add as many
 --new states as we have random numbers
 --for performance reasons we add to the result on the left
@@ -167,7 +206,7 @@ listPhiMaker
     nots = length tss
 --    --for every encountered ListState find the possible successor states and 
 --    --the relative abundance (as proxy to probability) with which they occure
-    tps =allListTargetProbs(tss) recorded_state_ids
+    tps =allListTargetProbs(tss) recorded_state_ids 
 --    --At the moment the 'random' numbers are known the trajectory becomes deterministic
 --    
     phi :: ListStateTransformer
@@ -187,6 +226,44 @@ listPhiMaker
   in 
     phi
 
+--create a state transformer by cataloging all the possible successive values
+--of a given ListState  (n previous states for a nth. order MC
+--where the present state here is  represented by n successive values)
+--but discard those jumb probabilities that are smaller than threshhold
+simplifiedListPhiMaker :: [State] -> Int -> Double -> State ->  ListStateTransformer 
+simplifiedListPhiMaker 
+  recorded_state_ids
+  order
+  threshold
+  defaultState
+  = 
+  let
+    --first we create a list of all n-element lists of successive states in the training
+    --set 
+    tss:: [ListState] 
+    tss = S.toList (S.fromList (nList recorded_state_ids order)) 
+    nots = length tss
+--    --for every encountered ListState find the possible successor states and 
+--    --the relative abundance (as proxy to probability) with which they occure
+    tps =simplifiedAllListTargetProbs(tss) recorded_state_ids threshold
+--    --At the moment the 'random' numbers are known the trajectory becomes deterministic
+--    
+    phi :: ListStateTransformer
+    phi 
+      listState -- present state consisting of the n previous_states
+      rn --random number 
+      =
+        let 
+          mbcjps = lookup listState tps 
+          mbts = mbTargetState mbcjps rn
+        in 
+          if mbts == Nothing then
+            defaultState
+          else
+            let Just ts = mbts
+            in  ts
+  in 
+    phi
 
 
 --use a markov chain of order order
