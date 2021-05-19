@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/bin"
-libdir     = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/lib/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0-HDDqZ3jF2RjDLWMwthrZMr-SpokeCalculator"
-dynlibdir  = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/lib/x86_64-linux-ghc-8.4.3"
-datadir    = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/share/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0"
-libexecdir = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/libexec/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0"
-sysconfdir = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/lts-12.7/8.4.3/etc"
+bindir     = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/bin"
+libdir     = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/lib/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0-5XMGxYLnkOFsJtxRQKFzZ-SpokeCalculator"
+dynlibdir  = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/lib/x86_64-linux-ghc-8.4.3"
+datadir    = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/share/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0"
+libexecdir = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/libexec/x86_64-linux-ghc-8.4.3/SpokeCalculator-0.1.0.0"
+sysconfdir = "/home/mm/learningHaskell/SpokeCalculator/.stack-work/install/x86_64-linux/0dc7f27ced9bdeaf2c2eee75711dfd0725f86d4bd92d116e6feea21378651564/8.4.3/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "SpokeCalculator_bindir") (\_ -> return bindir)

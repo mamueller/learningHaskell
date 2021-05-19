@@ -2,10 +2,10 @@ module Main where
 import System.IO (readFile)
 import Data.Time (getCurrentTime)
 
--- for this to work OpenGL and GLUT have to be in firsProject.cabal
+-- for this to work OpenGL and GLUT have to be in SpokeCalculater.cabal
 -- and stack build has to be called 
 -- (I did stack install OpenGL before)
--- for this to worok the appropriate C-Libraries have to be installed
+-- for this to work the appropriate C-Libraries have to be installed
 -- sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
 -- for the graphics I followed https://wiki.haskell.org/OpenGLTutorial1
 import Graphics.Rendering.OpenGL
@@ -28,6 +28,10 @@ main = do
   putStrLn  ("right measured: " ++ show 294 )
   
   putStrLn ( spokeLengthStr dtSpline24Rear_rx38D)
+  putStrLn  ("left from rim comparison: " ++ show (297 - 13.5))
+  putStrLn  ("right from rim comparison: " ++ show (294 - 13.5))
+
+  putStrLn ( spokeLengthStr dtSplineR2324Front_dt350)
   putStrLn  ("left from rim comparison: " ++ show (297 - 13.5))
   putStrLn  ("right from rim comparison: " ++ show (294 - 13.5))
 --  -- start opengle part
@@ -74,16 +78,21 @@ type RimIntervals = Int
 --between the rim points of a pair of CROSSED spokes
 --that occupy 2 directly adjacent wholes in the hub
 data Pattern = CrossedPattern { numberOfPairsPerSide::Int ,rimIntervals::Int }
+               |RadialPattern { numberOfWholesPerSide::Int}
                deriving (Show)
 --  examples
 spline24 :: Pattern
 spline24=CrossedPattern 6 10
+
+radial24 :: Pattern
+radial24= RadialPattern 24
 
 threeCrossed32 :: Pattern
 threeCrossed32 =CrossedPattern 8 10
 
 numberOfHubHoles:: Pattern -> Int
 numberOfHubHoles(CrossedPattern np _) = np*4
+numberOfHubHoles(RadialPattern np ) = np
 
 
 data Flange =JBendFlange { flangeHoles::Int, flangeDiameter::Double, distance::Double} 
@@ -96,6 +105,21 @@ type RightFlange = Flange
 data Hub = Hub {leftFlange::Flange, rightFlange::Flange, width::Double}
          deriving (Show)
            
+dt350StraightPullFront24= Hub {
+    leftFlange=StraightPullFlange {
+        flangeHoles=12 
+        ,flangeDiameter=23.0
+        ,distance=16 
+        ,offSetFromMiddle=0
+        }
+    ,rightFlange=StraightPullFlange {
+        flangeHoles=12 
+        ,flangeDiameter=23.0
+        ,distance=16 
+        ,offSetFromMiddle=0
+        }
+    ,width= 100.0
+    }
 
 aC32Wide= Hub {leftFlange=JBendFlange {flangeHoles=16 ,flangeDiameter=66.0,distance=33.5}
               ,rightFlange=JBendFlange {flangeHoles=16,flangeDiameter=66.0,distance=49.0}
@@ -128,6 +152,7 @@ data Rim = Rim { rimHoles:: Int
 dT411_32=Rim {rimHoles=32,outerDiameter=622,depth=13.0,rimOffSet=2}
 rx38D=Rim {rimHoles=24,outerDiameter=622,depth=26.0,rimOffSet=2}
 dtSpline24=Rim {rimHoles=24,outerDiameter=622,depth=12.5,rimOffSet=0}
+dtSplineR23_24=Rim {rimHoles=24,outerDiameter=622,depth=15,rimOffSet=0}
 
 erd :: Rim -> Double --the inner diameter of the rim plus the width of the rim material 
 erd r  = (outerDiameter r )-(2*(depth r))
@@ -137,6 +162,7 @@ aC32Wide_dT411_32 = Wheel {hub=aC32Wide,rim=dT411_32,pattern=threeCrossed32,name
 aC32Narrow_dT411_32 = Wheel {hub=aC32Narrow,rim=dT411_32,pattern=threeCrossed32,name="aC32Narrow_dT411_32" }
 dtSpline24Rear_org= Wheel {hub=dtSpline24Rear,rim=dtSpline24,pattern=spline24,name="dtSpline24Rear_org" }
 dtSpline24Rear_rx38D= Wheel {hub=dtSpline24Rear,rim=rx38D,pattern=spline24,name="dtSpline24Rear_rx38D" }
+dtSplineR2324Front_dt350= Wheel {hub=dt350StraightPullFront24,rim=dtSplineR23_24,pattern=radial24,name="dtSplineR2324Front_dt350"}
 
 zDists :: Hub -> (Double,Double) --compute the distance of the flanges from the center of the hub
 zDists (Hub leftFlange rightFlange width)  = ( hw-(distance leftFlange) , hw-(distance rightFlange) )
