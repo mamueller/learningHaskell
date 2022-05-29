@@ -8,7 +8,7 @@ let
   pls = pkgs.python39Packages.python-lsp-server;
   myVim= pkgs.vim_configurable.customize {
     #name = "vim-with-plugins";
-    name = "vim";
+    name = "vi";
     # add here code from the example section
     vimrcConfig={
 	customRC = ''
