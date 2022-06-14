@@ -13,10 +13,29 @@ let
     vimrcConfig={
 	customRC = ''
     	  set hidden
+	  set mouse=a
     	  set colorcolumn=80
     	  syntax enable
     	  set number
 	  set autoindent
+	  set hls
+          augroup vimrc
+            " set python indentation
+            au BufNewFile,BufRead *.py,*.rst,*.hs
+                \ setlocal tabstop=4|
+                \ setlocal softtabstop=4|
+                \ setlocal shiftwidth=4|
+                \ setlocal expandtab|
+                \ setlocal shiftround
+            " set js indentation
+            au BufNewFile,BufRead *.js,*.html,*.tex
+                \ setlocal tabstop=2|
+                \ setlocal softtabstop=2|
+                \ setlocal shiftwidth=2|
+                \ setlocal expandtab|
+                \ setlocal shiftround
+          augroup END 
+
 	  let g:LanguageClient_serverCommands = { 'haskell': ['haskell-language-server-wrapper', '--lsp'] }
 	  nnoremap <F5> :call LanguageClient_contextMenu()<CR>
 	  map <Leader>lk :call LanguageClient#textDocument_hover()<CR>
